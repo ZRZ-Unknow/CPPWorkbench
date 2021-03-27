@@ -25,4 +25,14 @@
 
 ### 二. 编程题
 
-1. 
+1. Merchandise
+
+   + 调用默认拷贝构造函数， 类中的成员指针name会指向同一片空间，而类中的一些成员函数会修改name，会造成错误。且调用m2的析构函数时，会造成name被归还两次。
+
+   + set_name后加了const，则不能在函数体内修改数据成员的值，而set_name里改变了name的值。
+   
+   + 静态数据成员MerchandiseCnt未定义并初始化。 
+
+2. FloatSet
+
+   + 这
