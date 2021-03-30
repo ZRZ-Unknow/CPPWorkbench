@@ -1,38 +1,28 @@
 #pragma once
-#include <iostream>
-#include <utility>
-using namespace std;
+#include "common.h"
+#include <string.h>
 
-class Plant{
-protected:
-    int coord_x, coord_y;
-    int health;
-    int max_health;
-    int sun_cost;
+
+class SunFlower: public LivingObject{
+    int prod_sun;
 public:
-    Plant(){}
-    Plant(int health, int max_health, int sun_cost){
-        this->health = health;
-        this->max_health = max_health;
-        this->sun_cost = sun_cost;
+    SunFlower(){
+        this->type = sunflower;
+        this->health = init_table[0].health;
+        this->sun_cost = init_table[0].sun_cost;
+        this->prod_sun = init_table[0].prod_sun;
+        this->cd_time = init_table[0].cd_time;
     }
-    int get_health() const{
-        return health;
-    }
-    void attacked(int attack_damage){
-        health -= attack_damage;
-    }
-    bool is_dead() const{
-        return health<=0;
-    }
-    pair<int,int> get_coord() const{
-        return make_pair(coord_x, coord_y);
-    }
-    virtual void update(){}
+    void update();
 };
 
-class SunFlower: public Plant{
-    const int prod_sun;
-    const int prod_time;
+class PeaShooter: public LivingObject{
+public:
+    PeaShooter(){
+        this->type = peashooter;
+        this->health = init_table[1].health;
+        this->sun_cost = init_table[1].sun_cost;
+        this->cd_time = init_table[1].cd_time;
+    }
     void update();
 };
