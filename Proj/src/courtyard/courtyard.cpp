@@ -1,7 +1,9 @@
+#include <vector>
 #include "../../include/courtyard.h"
 #include "../../include/plant.h"
 #include "../../include/zombie.h"
 #include "../../include/common.h"
+using namespace std;
 
 void CourtYard::init(){
     /*SunFlower *a = new SunFlower();
@@ -48,4 +50,15 @@ void CourtYard::render(){
         printf("#");
         printf("\n");
     }
+}
+
+void CourtYard::new_zomble(LivingObject *zom){
+    vector<int> tmp;
+    for(int i=0;i<COURTYARD_ROW;i++){
+        if(!yard[i][COURTYARD_COLUMN-1].has_zombie()){
+            tmp.push_back(i); 
+        }
+    }
+    int index = tmp[Rand(tmp.size())];
+    yard[index][COURTYARD_COLUMN-1].set_zombie(zom);
 }

@@ -13,7 +13,7 @@ using namespace std;
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
 
-#define Rand() (rand()%10)
+#define Rand(n) (rand()%n)
 
 enum ObjectType{
     sunflower, peashooter, zombie,

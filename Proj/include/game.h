@@ -5,6 +5,7 @@
 #include "plant.h"
 #include "input.h"
 #include "courtyard.h"
+#include "zombie.h"
 using namespace std;
 
 
@@ -23,8 +24,14 @@ public:
         courtyard.init();
     }
     void gen_sun(){
-        if(Rand()<7)
-            total_sun += 10*Rand();
+        if(Rand(100)<7)
+            total_sun += 20;
+    }
+    void gen_zombie(){
+        if(Rand(1000)<10 && courtyard.can_add_zomble()){
+            Zombie *z = new Zombie;
+            courtyard.new_zomble(z);
+        }
     }
     void render(){
         store.render();
@@ -32,7 +39,8 @@ public:
         courtyard.render();
     }
     void loop(){
-        //gen_sun();
+        gen_sun();
+        gen_zombie();
     }
     void start(){
         char input;
@@ -51,6 +59,7 @@ public:
                 if(input == 'q') break;
             }
             loop();
+            
         }
         if(tty_set_flag == 0)
             tty_reset();

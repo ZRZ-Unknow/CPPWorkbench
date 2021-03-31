@@ -65,4 +65,12 @@ public:
     void init();
     void update();
     void render();
+    void new_zomble(LivingObject *zom);
+    bool can_add_zomble(){
+        for(int i=0;i<COURTYARD_ROW;i++){
+            if(!yard[i][COURTYARD_COLUMN-1].has_zombie())
+                return true;
+        }
+        return false;
+    }
 };
