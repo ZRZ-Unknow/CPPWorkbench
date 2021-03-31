@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include <utility>
+#include <assert.h>
+#include <stdlib.h>
+
 using namespace std;
 
 
@@ -10,6 +13,7 @@ using namespace std;
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
 
+#define Rand() (rand()%10)
 
 enum ObjectType{
     sunflower, peashooter, zombie,

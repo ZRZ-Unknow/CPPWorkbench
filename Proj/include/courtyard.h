@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <assert.h>
 #include "common.h"
@@ -36,9 +37,18 @@ public:
         ObjectType type = plant->get_type();
         return &init_table[type].name[0]; 
     }
+    char *get_zombie_name(){
+        assert(has_zombie());
+        ObjectType type = zombie->get_type();
+        return &init_table[type].name[0];
+    }
     ObjectType get_plant_type(){
         assert(is_planted());
         return plant->get_type();
+    }
+    ObjectType get_zombie_type(){
+        assert(has_zombie());
+        return zombie->get_type();
     }
 };
 
