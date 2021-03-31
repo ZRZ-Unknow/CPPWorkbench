@@ -8,10 +8,8 @@ class SunFlower: public LivingObject{
 public:
     SunFlower(){
         this->type = sunflower;
-        this->health = init_table[0].health;
-        this->sun_cost = init_table[0].sun_cost;
-        this->prod_sun = init_table[0].prod_sun;
-        this->cd_time = init_table[0].cd_time;
+        this->health = init_table[sunflower].health;
+        this->prod_sun = init_table[sunflower].prod_sun;
     }
     void update();
 };
@@ -20,9 +18,7 @@ class PeaShooter: public LivingObject{
 public:
     PeaShooter(){
         this->type = peashooter;
-        this->health = init_table[1].health;
-        this->sun_cost = init_table[1].sun_cost;
-        this->cd_time = init_table[1].cd_time;
+        this->health = init_table[peashooter].health;
     }
     void update();
 };

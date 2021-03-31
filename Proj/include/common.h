@@ -8,9 +8,11 @@ using namespace std;
 #define GRID_YLEN 5
 #define COURTYARD_ROW 3
 #define COURTYARD_COLUMN 7
+#define PLANT_NUM 2
+
 
 enum ObjectType{
-    sunflower, peashooter,
+    sunflower, peashooter, zombie,
 };
 
 struct InitTable{
@@ -24,6 +26,7 @@ struct InitTable{
 }static init_table[] = {
     {"SunFlower", 100, 0, 50, 100, 10, 0 },
     {"PeaShooter", 100, 30, 100, 0, 10, 0},
+    {"Zombie", 100, 50, 0, 0, 0, 10},
 };
 
 
@@ -32,8 +35,6 @@ protected:
     int coord_x, coord_y;
     int health;
     int attack_damage;
-    int sun_cost;
-    int cd_time;
     ObjectType type;
 public:
     LivingObject(){}
