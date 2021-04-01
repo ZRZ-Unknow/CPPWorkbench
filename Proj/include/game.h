@@ -33,6 +33,20 @@ public:
             courtyard.new_zomble(z);
         }
     }
+    void buy_plant(ObjectType plant_type){
+        switch(plant_type){
+            case sunflower:{
+                SunFlower *p = new SunFlower;
+                courtyard.add_plant(p);
+                break;
+            }
+            case peashooter:{
+                PeaShooter *p = new PeaShooter;
+                courtyard.add_plant(p);
+                break;
+            }
+        }
+    }
     void render(){
         store.render();
         printf("Total Sun:%d | Score:%d\n", total_sun, score);
@@ -41,6 +55,11 @@ public:
     void loop(){
         gen_sun();
         gen_zombie();
+        if(Rand(5)<3){
+            buy_plant(sunflower);
+        }else{
+            buy_plant(peashooter);
+        }
     }
     void start(){
         char input;
@@ -49,6 +68,7 @@ public:
         while(true){
             system("clear");
             render();
+            //test_key();
             /*while(!kbhit()){
                 loop();
                 continue;
@@ -63,5 +83,28 @@ public:
         }
         if(tty_set_flag == 0)
             tty_reset();
+    }
+    void test_key(){
+        char ch;
+        while(true){
+            while(!kbhit()) continue;
+            ch = getchar();
+            switch(ch){
+                case KEY1: printf("KEY 1\n");break;
+                case KEY2: printf("KEY 2\n");break;
+                case KEY3: printf("KEY 3\n");break;
+                case KEY4: printf("KEY 4\n");break;
+                case KEYQ: printf("KEY q\n");break;
+                case KEYB: printf("KEY b\n");break;
+                case KEYX: printf("KEY x\n");break;
+                case KEYU: printf("KEY u\n");break;
+                case KEYENTER: printf("KEY ENTER\n");break;
+                case KEYLEFT: printf("KEY LEFT\n");break;
+                case KEYRIGHT: printf("KEY RIGHT\n");break;
+                case KEYUP: printf("KEY UP\n");break;
+                case KEYDOWN: printf("KEY DOWN\n");break;
+                default:break;
+            }
+        }
     }
 };

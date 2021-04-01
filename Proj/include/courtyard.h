@@ -73,4 +73,23 @@ public:
         }
         return false;
     }
+    bool can_add_plant(int i, int j){
+        return !yard[i][j].is_planted();
+    }
+    bool add_plant(LivingObject *pla, int i, int j){
+        assert(can_add_plant(i, j));
+        yard[i][j].set_plant(pla);
+        return true;
+    }
+    bool add_plant(LivingObject *pla){
+        for(int i=0;i<COURTYARD_ROW;i++){
+            for(int j=0;j<COURTYARD_COLUMN;j++){
+                if(can_add_plant(i, j)){
+                    add_plant(pla, i, j);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 };

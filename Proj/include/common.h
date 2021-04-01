@@ -72,3 +72,30 @@ public:
     }
     virtual void update(){}
 };
+
+
+
+
+#define KEY1 '1'
+#define KEY2 '2'
+#define KEY3 '3'
+#define KEY4 '4'
+#define KEYQ 'q'
+#define KEYB 'b'
+#define KEYX 'x'
+#define KEYU 'u'
+#define KEYENTER 10
+#define KEYLEFT 68
+#define KEYRIGHT 67
+#define KEYUP 65
+#define KEYDOWN 66
+
+
+
+
+
+
+
+
+
+
