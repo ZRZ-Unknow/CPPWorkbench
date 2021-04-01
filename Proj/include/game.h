@@ -13,18 +13,29 @@ using namespace std;
 class Game{
     int score;
     int total_sun;
+    int plant_index;
+    int cursor_x, cursor_y;
+    bool shopping_mode;
+    char logs[128];
     Store store;
     CourtYard courtyard;
 public:
     Game(){
         score = total_sun = 0;
+        plant_index = -1;
+        cursor_x = cursor_y = -1;
+        shopping_mode = false;
+        memset(&logs[0], '\0', 128);
     }
     void init(){
         store.init();
         courtyard.init();
     }
+    bool is_cursor_available(){
+        return cursor_x!=-1 && cursor_y !=-1;
+    }
     void gen_sun(){
-        if(Rand(100)<7)
+        if(Rand(10)<7)
             total_sun += 20;
     }
     void gen_zombie(){
@@ -34,32 +45,39 @@ public:
         }
     }
     void buy_plant(ObjectType plant_type){
+        if(!courtyard.can_add_plant(cursor_x, cursor_y)){
+            strcat(&logs[0], "Warning!This Yard Has Plant\n");
+            return;
+        }
+        if(!store.buy(plant_type, total_sun)){
+            return;
+        }
         switch(plant_type){
             case sunflower:{
                 SunFlower *p = new SunFlower;
-                courtyard.add_plant(p);
+                courtyard.add_plant(p, cursor_x, cursor_y);
                 break;
             }
             case peashooter:{
                 PeaShooter *p = new PeaShooter;
-                courtyard.add_plant(p);
+                courtyard.add_plant(p, cursor_x, cursor_y);
                 break;
             }
         }
     }
     void render(){
-        store.render();
+        store.render(plant_index);
         printf("Total Sun:%d | Score:%d\n", total_sun, score);
-        courtyard.render();
+        courtyard.render(cursor_x, cursor_y);
+        printf(logs);
+        fflush(stdout);
+        memset(&logs[0], '\0', 128);
     }
     void loop(){
         gen_sun();
         gen_zombie();
-        if(Rand(5)<3){
-            buy_plant(sunflower);
-        }else{
-            buy_plant(peashooter);
-        }
+        store.update();
+        courtyard.update();
     }
     void start(){
         char input;
@@ -68,16 +86,16 @@ public:
         while(true){
             system("clear");
             render();
-            //test_key();
+            while(!kbhit()) continue;
             /*while(!kbhit()){
                 loop();
                 continue;
             }*/
-            if(kbhit()){
+            //if(kbhit()){
                 input = getchar();
-                printf("%c\n",input);
                 if(input == 'q') break;
-            }
+                process_key(input);
+            //}
             loop();
             
         }
@@ -105,6 +123,66 @@ public:
                 case KEYDOWN: printf("KEY DOWN\n");break;
                 default:break;
             }
+        }
+    }
+    void process_key(char key){
+        switch(key){
+            case KEYU: printf("KEY u\n");break;
+            case KEYENTER:{
+                printf("KEY ENTER\n");
+                if(plant_index!=-1 && shopping_mode){
+                    ObjectType plant_type = ObjectType(plant_index);
+                    buy_plant(plant_type);
+                }
+                break;
+            } 
+            case KEYB:{
+                printf("KEY b\n");
+                shopping_mode = true;
+                if(!is_cursor_available()){
+                    cursor_x = cursor_y = 0;
+                }
+                break;
+            }
+            case KEYX:{
+                printf("KEY x\n");
+                shopping_mode = false;
+                cursor_x = cursor_y = -1;
+                break;
+            }
+            case KEY1:case KEY2:case KEY3:case KEY4:{
+                plant_index = key-'1';
+                break;
+            }
+            case KEYA:{
+                if(is_cursor_available()){
+                    if(cursor_y > 0) cursor_y -= 1;
+                }
+                printf("KEY LEFT\n");
+                break;
+            }
+            case KEYD:{
+                if(is_cursor_available()){
+                    if(cursor_y < COURTYARD_COLUMN-1) cursor_y += 1;
+                }
+                printf("KEY RIGHT\n");
+                break;
+            }
+            case KEYW:{
+                if(is_cursor_available()){
+                    if(cursor_x > 0) cursor_x -= 1;
+                }
+                printf("KEY UP\n");
+                break;
+            }
+            case KEYS:{
+                if(is_cursor_available()){
+                    if(cursor_x < COURTYARD_ROW-1) cursor_x += 1;
+                }
+                printf("KEY DOWN\n");
+                break;
+            }
+            default:break;
         }
     }
 };

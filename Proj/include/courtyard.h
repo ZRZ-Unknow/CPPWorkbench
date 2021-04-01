@@ -65,6 +65,7 @@ public:
     void init();
     void update();
     void render();
+    void render(int cursor_x, int cursor_y);
     void new_zomble(LivingObject *zom);
     bool can_add_zomble(){
         for(int i=0;i<COURTYARD_ROW;i++){

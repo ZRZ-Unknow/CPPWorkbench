@@ -84,6 +84,10 @@ public:
 #define KEYB 'b'
 #define KEYX 'x'
 #define KEYU 'u'
+#define KEYW 'w'
+#define KEYA 'a'
+#define KEYS 's'
+#define KEYD 'd'
 #define KEYENTER 10
 #define KEYLEFT 68
 #define KEYRIGHT 67

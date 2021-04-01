@@ -55,12 +55,15 @@ public:
             plants[i].cooling();
         }
     }
-    void render(){
+    void render(int plant_index){
         printf("================================STORE================================\n");
         for(int i=0;i<PLANT_NUM;i++){
-            printf("%d.%s:%d ", i+1, plants[i].get_name(), plants[i].sun_cost);
+            if(plant_index == i){
+                printf("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].time_count);
+            }else{
+                printf("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].time_count);
+            }
         }
-        printf("\n");
         printf("================================YARD================================\n");
     }
     friend class Game;
