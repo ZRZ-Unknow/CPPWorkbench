@@ -3,20 +3,22 @@
 #include <utility>
 #include <assert.h>
 #include <stdlib.h>
+#include <vector>
 
 using namespace std;
 
 
-#define GRID_XLEN 14
-#define GRID_YLEN 5
+#define GRID_YLEN 14
+#define GRID_XLEN 5
 #define COURTYARD_ROW 3
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
+#define ZOMBIE_NUM 1
 
 #define Rand(n) (rand()%n)
 
 enum ObjectType{
-    sunflower, peashooter, zombie,
+    sunflower, peashooter, zombie, bullet,
 };
 
 struct InitTable{
@@ -27,10 +29,13 @@ struct InitTable{
     int prod_sun;
     int cd_time;
     int speed;
+    int act_time;
+    int kill_score;
 }static init_table[] = {
-    {"SunFlower", 100, 0, 50, 100, 10, 0 },
-    {"PeaShooter", 100, 30, 100, 0, 10, 0},
-    {"Zombie", 100, 50, 0, 0, 0, 10},
+    {"SunFlower", 100, 0, 50, 50, 5, 0, 5, 0},
+    {"PeaShooter", 100, 0, 100, 0, 5, 0, 2, 0},
+    {"Zombie", 100, 20, 0, 0, 0, 1, 5, 50},
+    {"Bullet", 1, 25, 0, 0, 0, 2, 1, 0},
 };
 
 
@@ -39,6 +44,9 @@ protected:
     int coord_x, coord_y;
     int health;
     int attack_damage;
+    int act_time;
+    int counter;
+    int kill_score;
     ObjectType type;
 public:
     LivingObject(){}
@@ -50,6 +58,9 @@ public:
     }
     int get_coord_y() const{
         return coord_y;
+    }
+    bool equal_position(int x, int y) const{
+        return coord_x==x && coord_y==y;
     }
     ObjectType get_type(){
         return type;
@@ -69,6 +80,21 @@ public:
     }
     bool is_dead() const{
         return health <= 0;
+    }
+    void make_dead(){
+        health = 0;
+    }
+    void increase_counter(){
+        counter = (counter+1)%act_time;
+    }
+    int get_counter(){
+        return counter;
+    }
+    int get_kill_score(){
+        return kill_score;
+    }
+    bool can_act(){
+        return counter == 0;
     }
     virtual void update(){}
 };
@@ -93,13 +119,4 @@ public:
 #define KEYRIGHT 67
 #define KEYUP 65
 #define KEYDOWN 66
-
-
-
-
-
-
-
-
-
 

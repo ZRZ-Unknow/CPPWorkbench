@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include "common.h"
+#include "bullet.h"
 using namespace std;
 
 
@@ -28,9 +29,27 @@ public:
         assert(!is_planted());
         this->plant = plant;
     }
+    void del_plant(){
+        assert(is_planted());
+        plant = NULL;
+    }
+    void free_plant(){
+        assert(is_planted());
+        delete plant;
+        plant = NULL;
+    }
     void set_zombie(LivingObject *zombie){
         assert(!has_zombie());
         this->zombie = zombie;
+    }
+    void del_zombie(){
+        assert(has_zombie());
+        zombie = NULL;
+    }
+    void free_zombie(){
+        assert(has_zombie());
+        delete zombie;
+        zombie = NULL;
     }
     char *get_plant_name(){
         assert(is_planted());
@@ -50,6 +69,7 @@ public:
         assert(has_zombie());
         return zombie->get_type();
     }
+    friend class CourtYard;
 };
 
 class CourtYard{
@@ -63,9 +83,11 @@ public:
         }
     }
     void init();
-    void update();
+    void check_status(vector<BulletStruct> &all_bullets, int &score);
+    void update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun);
     void render();
-    void render(int cursor_x, int cursor_y);
+    void render(int cursor_x, int cursor_y);  
+    void render(int cursor_x, int cursor_y, vector<BulletStruct> &all_bullets);
     void new_zomble(LivingObject *zom);
     bool can_add_zomble(){
         for(int i=0;i<COURTYARD_ROW;i++){

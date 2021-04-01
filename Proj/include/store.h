@@ -5,7 +5,7 @@
 class PlantPlate{
     int sun_cost;
     int cd_time;
-    int time_count;
+    int counter;
     ObjectType type;
 public:
     PlantPlate(){}
@@ -13,17 +13,17 @@ public:
         this->type = type;
         this->sun_cost = sun_cost;
         this->cd_time = cd_time;
-        this->time_count = 0;
+        this->counter = 0;
     }
     void cooling(){
-        if(time_count>0) time_count--;
+        if(counter>0) counter--;
     }
     bool can_buy(){
-        return time_count==0;
+        return counter==0;
     }
     void buy(){
         assert(can_buy());
-        time_count = cd_time;
+        counter = cd_time;
     }
     const char* get_name(){
         return &init_table[type].name[0];
@@ -56,15 +56,15 @@ public:
         }
     }
     void render(int plant_index){
-        printf("================================STORE================================\n");
+        printf("==============================================STORE===============================================\n");
         for(int i=0;i<PLANT_NUM;i++){
             if(plant_index == i){
-                printf("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].time_count);
+                printf("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
             }else{
-                printf("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].time_count);
+                printf("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
             }
         }
-        printf("================================YARD================================\n");
+        printf("==============================================YARD================================================\n");
     }
     friend class Game;
 };
