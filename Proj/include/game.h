@@ -50,7 +50,7 @@ public:
     }
     void buy_plant(ObjectType plant_type){
         if(!courtyard.can_add_plant(cursor_x, cursor_y)){
-            strcat(&logs[0], "Warning!This Yard Has Plant\n");
+            strcat(&logs[0], "Warning!This Yard Has Plant or Zombie!\n");
             return;
         }
         if(!store.buy(plant_type, total_sun)){
@@ -171,7 +171,7 @@ public:
             }
             case KEYD:{
                 if(is_cursor_available()){
-                    if(cursor_y < COURTYARD_COLUMN-1) cursor_y += 1;
+                    if(cursor_y < COURTYARD_COLUMN-2) cursor_y += 1;  //-2代表最后一列不能种
                 }
                 break;
             }

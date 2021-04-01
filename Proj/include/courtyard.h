@@ -97,7 +97,7 @@ public:
         return false;
     }
     bool can_add_plant(int i, int j){
-        return !yard[i][j].is_planted();
+        return !yard[i][j].is_planted() && !yard[i][j].has_zombie();
     }
     bool add_plant(LivingObject *pla, int i, int j){
         assert(can_add_plant(i, j));

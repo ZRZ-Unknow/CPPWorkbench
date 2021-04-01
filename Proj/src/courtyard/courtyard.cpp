@@ -116,7 +116,7 @@ void CourtYard::render(int cursor_x, int cursor_y, vector<BulletStruct> &all_bul
                         printf("# %s", pname);
                         for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printf(" ");
                         printf("#"); 
-                    }else if(p == 0 && yard[i][j].has_zombie()){
+                    }else if(p == (GRID_XLEN/2) && yard[i][j].has_zombie()){
                         char *pname = yard[i][j].get_zombie_name();
                         printf("# %s", pname);
                         for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printf(" ");
@@ -226,9 +226,9 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                 yard[i][j].zombie->attacked(all_bullets[bullet_index].bullet->attack());
                 all_bullets[bullet_index].bullet->make_dead();
             }
-            //if(j<(COURTYARD_COLUMN-1) && yard[i][j].is_planted() && yard[i][j+1].has_zombie()){
-            if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
-                yard[i][j].plant->attacked(yard[i][j].zombie->attack());
+            if(j>0 && yard[i][j-1].is_planted() && yard[i][j].has_zombie()){
+            //if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
+                yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
             }else if(yard[i][j].has_zombie()){
                 if(j==0){
                     if(yard[i][j].zombie->can_act()){
