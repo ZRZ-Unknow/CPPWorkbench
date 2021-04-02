@@ -26,7 +26,7 @@ public:
     PeaShooter(){
         this->type = peashooter;
         this->health = init_table[peashooter].health;
-        this->act_time = init_table[sunflower].act_time;
+        this->act_time = init_table[peashooter].act_time;
         this->counter = 0;
     }
     void update(){};

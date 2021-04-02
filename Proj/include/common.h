@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <vector>
+#include <sys/time.h> 
 
 using namespace std;
 
@@ -14,6 +15,9 @@ using namespace std;
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
 #define ZOMBIE_NUM 1
+
+#define REFRESH_RATE 10000
+#define GAME_CLICK 100
 
 #define Rand(n) (rand()%n)
 
@@ -29,13 +33,13 @@ struct InitTable{
     int prod_sun;
     int cd_time;
     int speed;
-    int act_time;
+    int act_time;  //隔多久产生动作
     int kill_score;
 }static init_table[] = {
-    {"SunFlower", 100, 0, 50, 50, 5, 0, 5, 0},
-    {"PeaShooter", 100, 0, 100, 0, 5, 0, 2, 0},
-    {"Zombie", 100, 20, 0, 0, 0, 1, 5, 50},
-    {"Bullet", 1, 25, 0, 0, 0, 2, 1, 0},
+    {"SunFlower", 70, 0, 50, 50, 5, 0, 800, 0},
+    {"PeaShooter", 70, 0, 100, 0, 5, 0, 50, 0},
+    {"Zombie", 100, 20, 0, 0, 0, 1, 500, 50},
+    {"Bullet", 1, 2, 0, 0, 0, 2, 10, 0},
 };
 
 
@@ -115,8 +119,8 @@ public:
 #define KEYS 's'
 #define KEYD 'd'
 #define KEYENTER 10
-#define KEYLEFT 68
-#define KEYRIGHT 67
-#define KEYUP 65
-#define KEYDOWN 66
+#define KEYLEFT 4
+#define KEYRIGHT 5
+#define KEYUP 3
+#define KEYDOWN 2
 

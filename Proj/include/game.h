@@ -1,5 +1,8 @@
 #pragma once
 #include <iostream>
+#include <curses.h>
+#include <signal.h>  
+#include <sys/time.h>
 #include "common.h"
 #include "store.h"
 #include "plant.h"
@@ -8,8 +11,8 @@
 #include "zombie.h"
 #include "bullet.h"
 #include <vector>
+#include <time.h>
 using namespace std;
-
 
 
 class Game{
@@ -19,31 +22,41 @@ class Game{
     int cursor_x, cursor_y;
     bool shopping_mode;
     bool game_lose;
+    bool show_cursor;
     char logs[128];
     Store store;
     CourtYard courtyard;
     vector<BulletStruct> all_bullets;
+    clock_t last_time, curr_time;
 public:
     Game(){
         score = total_sun = 0;
         plant_index = -1;
-        cursor_x = cursor_y = -1;
-        shopping_mode = game_lose = false;
+        cursor_x = cursor_y = 0;
+        shopping_mode = game_lose = show_cursor = false;
         memset(&logs[0], '\0', 128);
+    }
+    void init_curse(){
+        initscr();
+        cbreak();
+        curs_set(0);  
+        keypad(stdscr, true);
+        noecho();
     }
     void init(){
         store.init();
         courtyard.init();
+        init_curse();
     }
     bool is_cursor_available(){
-        return cursor_x!=-1 && cursor_y !=-1;
+        return show_cursor; 
     }
     void gen_sun(){
-        if(Rand(10)<7)
+        if(Rand(10000)<5)
             total_sun += 25;
     }
     void gen_zombie(){
-        if(Rand(100)<10 && courtyard.can_add_zomble()){
+        if(Rand(10000)<10 && courtyard.can_add_zomble()){
             Zombie *z = new Zombie;
             courtyard.new_zomble(z);
         }
@@ -69,6 +82,12 @@ public:
             }
         }
     }
+    void curse_render(){
+        store.curse_render(plant_index);
+        printw("Total Sun:%d | Score:%d\n", total_sun, score);
+        courtyard.curse_render(cursor_x, cursor_y, show_cursor, all_bullets);
+        refresh();
+    };
     void render(){
         store.render(plant_index);
         printf("Total Sun:%d | Score:%d\n", total_sun, score);
@@ -87,7 +106,32 @@ public:
         gen_sun();
         gen_zombie();
     }
+    void wait(){
+        while(((curr_time=clock())-last_time)<REFRESH_RATE){}
+        last_time = curr_time;
+    }
     void start(){
+        int tty_set_flag = tty_set();
+        curse_render();
+        last_time = curr_time = clock();
+        while(true){
+            wait();
+            curse_render();
+            if(game_lose){
+                printw("Lose Game!!!Total Score: %d\n", score);
+                refresh();
+                exit(0);
+            }
+            if(kbhit()){
+                char ch = getch();
+                if(ch == KEYQ)
+                    break;
+                process_key(ch);
+            }
+            loop();
+        }
+    }
+    /*void start(){
         char input;
         int tty_set_flag;
         tty_set_flag = tty_set();
@@ -99,21 +143,17 @@ public:
                 exit(0);
             }
             while(!kbhit()) continue;
-            /*while(!kbhit()){
-                loop();
-                continue;
-            }*/
-            //if(kbhit()){
+            if(kbhit()){
                 input = getchar();
-                if(input == 'q') break;
+                if(input == KEYQ) break;
                 process_key(input);
-            //}
+            }
             loop();
             
         }
         if(tty_set_flag == 0)
             tty_reset();
-    }
+    }*/
     void test_key(){
         char ch;
         while(true){
@@ -149,39 +189,37 @@ public:
             } 
             case KEYB:{
                 shopping_mode = true;
-                if(!is_cursor_available()){
-                    cursor_x = cursor_y = 0;
-                }
+                show_cursor = true;
                 break;
             }
             case KEYX:{
                 shopping_mode = false;
-                cursor_x = cursor_y = -1;
+                show_cursor = false;
                 break;
             }
             case KEY1:case KEY2:case KEY3:case KEY4:{
                 plant_index = key-'1';
                 break;
             }
-            case KEYA:{
+            case KEYLEFT:{
                 if(is_cursor_available()){
                     if(cursor_y > 0) cursor_y -= 1;
                 }
                 break;
             }
-            case KEYD:{
+            case KEYRIGHT:{
                 if(is_cursor_available()){
                     if(cursor_y < COURTYARD_COLUMN-2) cursor_y += 1;  //-2代表最后一列不能种
                 }
                 break;
             }
-            case KEYW:{
+            case KEYUP:{
                 if(is_cursor_available()){
                     if(cursor_x > 0) cursor_x -= 1;
                 }
                 break;
             }
-            case KEYS:{
+            case KEYDOWN:{
                 if(is_cursor_available()){
                     if(cursor_x < COURTYARD_ROW-1) cursor_x += 1;
                 }

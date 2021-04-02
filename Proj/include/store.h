@@ -1,11 +1,12 @@
 #pragma once
 #include "common.h"
-
+#include "curses.h"
 
 class PlantPlate{
     int sun_cost;
     int cd_time;
     int counter;
+    int inner_counter;
     ObjectType type;
 public:
     PlantPlate(){}
@@ -14,9 +15,14 @@ public:
         this->sun_cost = sun_cost;
         this->cd_time = cd_time;
         this->counter = 0;
+        this->inner_counter = 0;
     }
     void cooling(){
-        if(counter>0) counter--;
+        if(counter > 0){
+            inner_counter = (inner_counter+1) % GAME_CLICK;
+            if(inner_counter == 0)
+                counter--;
+        }
     }
     bool can_buy(){
         return counter==0;
@@ -24,6 +30,7 @@ public:
     void buy(){
         assert(can_buy());
         counter = cd_time;
+        inner_counter = 0;
     }
     const char* get_name(){
         return &init_table[type].name[0];
@@ -54,6 +61,18 @@ public:
         for(int i=0;i<PLANT_NUM;i++){
             plants[i].cooling();
         }
+    }
+    void curse_render(int plant_index){
+        move(0, 0);
+        printw("==============================================STORE===============================================\n");
+        for(int i=0;i<PLANT_NUM;i++){
+            if(plant_index == i){
+                printw("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
+            }else{
+                printw("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
+            }
+        }
+        printw("==============================================YARD================================================\n");
     }
     void render(int plant_index){
         printf("==============================================STORE===============================================\n");

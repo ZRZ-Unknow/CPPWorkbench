@@ -88,6 +88,7 @@ public:
     void render();
     void render(int cursor_x, int cursor_y);  
     void render(int cursor_x, int cursor_y, vector<BulletStruct> &all_bullets);
+    void curse_render(int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets);
     void new_zomble(LivingObject *zom);
     bool can_add_zomble(){
         for(int i=0;i<COURTYARD_ROW;i++){

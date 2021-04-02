@@ -10,10 +10,10 @@ subsrc = $(shell find $(src_dir)/ -name "*.cpp" | grep -v "./main.cpp")
 
 
 $(prom): $(obj) $(build_dir)
-	$(cc) -o $(prom) $(obj)
+	$(cc) -o $(prom) $(obj) -lcurses
 
 run: $(obj)
-	$(cc) -o $(prom) $(obj) && $(prom)
+	$(cc) -o $(prom) $(obj) -lcurses && $(prom)
 
 $(build_dir)/%.o: $(src_dir)/%.cpp $(deps)
 	@mkdir -p $(dir $@)

@@ -1,4 +1,5 @@
 #include <vector>
+#include <curses.h>
 #include "../../include/courtyard.h"
 #include "../../include/plant.h"
 #include "../../include/zombie.h"
@@ -149,12 +150,61 @@ void CourtYard::render(int cursor_x, int cursor_y, vector<BulletStruct> &all_bul
             printf("\n");
         }
         for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
-        printf("#");
+            printf("#");
         printf("\n");
     }
 }
 
-
+void CourtYard::curse_render(int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
+    for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
+        printw("#");
+    printw("\n");
+    for(int i=0;i<COURTYARD_ROW;i++){
+        for(int p=0;p<GRID_XLEN;p++){
+            for(int j=0;j<COURTYARD_COLUMN;j++){
+                if(p%2 == 0){
+                    if(p == (GRID_XLEN/2) && yard[i][j].is_planted()){
+                        char *pname = yard[i][j].get_plant_name();
+                        printw("# %s", pname);
+                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
+                        printw("#"); 
+                    }else if(p == (GRID_XLEN/2) && yard[i][j].has_zombie()){
+                        char *pname = yard[i][j].get_zombie_name();
+                        printw("# %s", pname);
+                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
+                        printw("#"); 
+                    }else if(p == GRID_XLEN-1){
+                        for(int t=0;t<GRID_YLEN;t++){
+                            if(has_bullet_in_pos(all_bullets, i, j, t)){
+                                printw("+");
+                            }else{
+                                if(t==0 || t==GRID_YLEN-1) printw("#");
+                                else printw(" ");
+                            }
+                        }
+                    }else{
+                        printw("#");
+                        for(int q=0;q<GRID_YLEN-2;q++) printw(" ");
+                        printw("#");
+                    }
+                }
+                else{
+                    if(show_cursor && cursor_x == i && cursor_y == j){
+                        for(int q=0;q<GRID_YLEN;q++) 
+                            printw("*");
+                    }else{
+                        for(int q=0;q<GRID_YLEN;q++) 
+                            printw(" ");
+                    }
+                }
+            }
+            printw("\n");
+        }
+        for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
+            printw("#");
+        printw("\n");
+    }
+}
 void CourtYard::new_zomble(LivingObject *zom){
     vector<int> tmp;
     for(int i=0;i<COURTYARD_ROW;i++){
@@ -228,7 +278,9 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
             }
             if(j>0 && yard[i][j-1].is_planted() && yard[i][j].has_zombie()){
             //if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
-                yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
+                if(yard[i][j].zombie->can_act())
+                    yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
+                yard[i][j].zombie->increase_counter();
             }else if(yard[i][j].has_zombie()){
                 if(j==0){
                     if(yard[i][j].zombie->can_act()){
