@@ -4,7 +4,6 @@
 
 class Bullet: public LivingObject{
     int speed;
-    int dx, dy;
 public:
     Bullet(){
         this->type = bullet;

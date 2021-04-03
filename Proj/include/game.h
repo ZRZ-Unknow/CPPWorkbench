@@ -52,7 +52,7 @@ public:
         return show_cursor; 
     }
     void gen_sun(){
-        if(Rand(10000)<5)
+        if(Rand(100)<5)
             total_sun += 25;
     }
     void gen_zombie(){
@@ -118,8 +118,12 @@ public:
             wait();
             curse_render();
             if(game_lose){
+                move(24, 0);
                 printw("Lose Game!!!Total Score: %d\n", score);
                 refresh();
+                sleep(10);
+                endwin();
+                printf("Lose Game!!!Total Score: %d\n", score);
                 exit(0);
             }
             if(kbhit()){
@@ -131,29 +135,6 @@ public:
             loop();
         }
     }
-    /*void start(){
-        char input;
-        int tty_set_flag;
-        tty_set_flag = tty_set();
-        while(true){
-            system("clear");
-            render();
-            if(game_lose){
-                printf("Lose Game!!!\n");
-                exit(0);
-            }
-            while(!kbhit()) continue;
-            if(kbhit()){
-                input = getchar();
-                if(input == KEYQ) break;
-                process_key(input);
-            }
-            loop();
-            
-        }
-        if(tty_set_flag == 0)
-            tty_reset();
-    }*/
     void test_key(){
         char ch;
         while(true){

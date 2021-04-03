@@ -46,6 +46,7 @@ struct InitTable{
 class LivingObject{
 protected:
     int coord_x, coord_y;
+    int dx, dy;
     int health;
     int attack_damage;
     int act_time;
@@ -63,6 +64,12 @@ public:
     int get_coord_y() const{
         return coord_y;
     }
+    int get_dx(){
+        return dx;
+    }
+    int get_dy(){
+        return dy;
+    }
     bool equal_position(int x, int y) const{
         return coord_x==x && coord_y==y;
     }
@@ -78,6 +85,10 @@ public:
     void set_coord(int x, int y){
         coord_x = x;
         coord_y = y;
+    }
+    void set_dxy(int dx, int dy){
+        this->dx = dx;
+        this->dy = dy;
     }
     int attack() const{
         return attack_damage;
