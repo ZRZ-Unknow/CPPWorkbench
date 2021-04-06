@@ -118,7 +118,7 @@ public:
             wait();
             curse_render();
             if(game_lose){
-                move(24, 0);
+                move(INFO_DISPLAY_POS, 0);
                 printw("Lose Game!!!Total Score: %d\n", score);
                 refresh();
                 sleep(10);

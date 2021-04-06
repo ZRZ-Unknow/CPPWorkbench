@@ -15,6 +15,7 @@ using namespace std;
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
 #define ZOMBIE_NUM 1
+#define INFO_DISPLAY_POS (3+PLANT_NUM+(GRID_XLEN+1)*COURTYARD_ROW+1)
 
 #define REFRESH_RATE 10000
 #define GAME_CLICK 100
