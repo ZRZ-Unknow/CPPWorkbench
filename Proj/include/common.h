@@ -15,12 +15,17 @@ using namespace std;
 #define COURTYARD_COLUMN 7
 #define PLANT_NUM 2
 #define ZOMBIE_NUM 1
-#define INFO_DISPLAY_POS (3+PLANT_NUM+(GRID_XLEN+1)*COURTYARD_ROW+1)
+#define INFO_DISPLAY_POS (4+PLANT_NUM+(GRID_XLEN+1)*COURTYARD_ROW+1)
 
 #define REFRESH_RATE 10000
 #define GAME_CLICK 100
 
 #define Rand(n) (rand()%n)
+
+#define print(color_pair_type, format, ...) do{\
+    attron(A_BOLD | COLOR_PAIR(color_pair_type));\
+    printw(format, ## __VA_ARGS__);\
+    attroff(A_BOLD | COLOR_PAIR(color_pair_type));}while(0);\
 
 enum ObjectType{
     sunflower, peashooter, zombie, bullet,
@@ -36,11 +41,12 @@ struct InitTable{
     int speed;
     int act_time;  //隔多久产生动作
     int kill_score;
+    int color_pair;
 }static init_table[] = {
-    {"SunFlower", 70, 0, 50, 50, 5, 0, 800, 0},
-    {"PeaShooter", 70, 0, 100, 0, 5, 0, 50, 0},
-    {"Zombie", 100, 20, 0, 0, 0, 1, 500, 50},
-    {"Bullet", 1, 2, 0, 0, 0, 2, 10, 0},
+    {"SunFlower", 70, 0, 50, 50, 5, 0, 800, 0, 2},
+    {"PeaShooter", 70, 0, 100, 0, 5, 0, 50, 0, 1},
+    {"Zombie", 100, 20, 0, 0, 0, 1, 500, 50, 3},
+    {"Bullet", 1, 2, 0, 0, 0, 2, 10, 0, 4},
 };
 
 

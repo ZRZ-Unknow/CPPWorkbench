@@ -85,7 +85,6 @@ public:
     void init();
     void check_status(vector<BulletStruct> &all_bullets, int &score);
     void update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun);
-    void render(int cursor_x, int cursor_y, vector<BulletStruct> &all_bullets);
     void curse_render(int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets);
     void new_zomble(LivingObject *zom);
     bool can_add_zomble(){

@@ -42,6 +42,25 @@ public:
         curs_set(0);  
         keypad(stdscr, true);
         noecho();
+        if(!has_colors()){
+            endwin();
+            fprintf(stderr, "终端不支持颜色显示\n");
+            exit(1);
+        }
+        if(start_color() != OK){
+            endwin();
+            fprintf(stderr, "无法初始化颜色\n");
+            exit(2);
+        }
+        init_pair(1, COLOR_GREEN, COLOR_BLACK);
+        init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(4, COLOR_GREEN, COLOR_BLACK);
+        init_pair(5, COLOR_WHITE, COLOR_RED);
+        init_pair(6, COLOR_WHITE, COLOR_BLACK);
+        init_pair(7, COLOR_CYAN, COLOR_BLACK);
+        init_pair(8, COLOR_RED, COLOR_BLACK);
+        init_pair(9, COLOR_BLUE, COLOR_BLACK);
     }
     void init(){
         store.init();
@@ -82,20 +101,21 @@ public:
             }
         }
     }
+    void this_render(){
+        print(9, "==============================================");
+        print(1, "GAME");
+        print(9, "================================================\n");
+        print(6, "Total Sun:%d | Score:%d\n", total_sun, score);
+        print(9, "==============================================");
+        print(1, "YARD");
+        print(9, "================================================\n");
+    }
     void curse_render(){
         store.curse_render(plant_index);
-        printw("Total Sun:%d | Score:%d\n", total_sun, score);
+        this_render(); 
         courtyard.curse_render(cursor_x, cursor_y, show_cursor, all_bullets);
         refresh();
     };
-    void render(){
-        store.render(plant_index);
-        printf("Total Sun:%d | Score:%d\n", total_sun, score);
-        courtyard.render(cursor_x, cursor_y, all_bullets);
-        printf(logs);
-        fflush(stdout);
-        memset(&logs[0], '\0', 128);
-    }
     void loop(){
         //首先check status，检查子弹、僵尸、植物等是否死亡，并更新分数。
         //然后update，僵尸前进，植物产生阳光，植物产生子弹，子弹前进，判断是否吃植物，是否打中僵尸。
@@ -133,29 +153,6 @@ public:
                 process_key(ch);
             }
             loop();
-        }
-    }
-    void test_key(){
-        char ch;
-        while(true){
-            while(!kbhit()) continue;
-            ch = getchar();
-            switch(ch){
-                case KEY1: printf("KEY 1\n");break;
-                case KEY2: printf("KEY 2\n");break;
-                case KEY3: printf("KEY 3\n");break;
-                case KEY4: printf("KEY 4\n");break;
-                case KEYQ: printf("KEY q\n");break;
-                case KEYB: printf("KEY b\n");break;
-                case KEYX: printf("KEY x\n");break;
-                case KEYU: printf("KEY u\n");break;
-                case KEYENTER: printf("KEY ENTER\n");break;
-                case KEYLEFT: printf("KEY LEFT\n");break;
-                case KEYRIGHT: printf("KEY RIGHT\n");break;
-                case KEYUP: printf("KEY UP\n");break;
-                case KEYDOWN: printf("KEY DOWN\n");break;
-                default:break;
-            }
         }
     }
     void process_key(char key){

@@ -64,26 +64,16 @@ public:
     }
     void curse_render(int plant_index){
         move(0, 0);
-        printw("==============================================STORE===============================================\n");
+        print(9, "==============================================");
+        print(1, "STORE");
+        print(9, "===============================================\n");
         for(int i=0;i<PLANT_NUM;i++){
             if(plant_index == i){
-                printw("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
+                print(8, "%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
             }else{
-                printw("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
+                print(6, "%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
             }
         }
-        printw("==============================================YARD================================================\n");
-    }
-    void render(int plant_index){
-        printf("==============================================STORE===============================================\n");
-        for(int i=0;i<PLANT_NUM;i++){
-            if(plant_index == i){
-                printf("%d.%s*:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
-            }else{
-                printf("%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);
-            }
-        }
-        printf("==============================================YARD================================================\n");
     }
     friend class Game;
 };
