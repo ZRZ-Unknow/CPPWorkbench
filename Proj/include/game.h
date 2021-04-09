@@ -23,21 +23,20 @@ class Game{
     bool shopping_mode;
     bool game_lose;
     bool show_cursor;
-    char logs[128];
     Store store;
     CourtYard courtyard;
     vector<BulletStruct> all_bullets;
     clock_t last_time, curr_time;
+    WINDOW *win;
 public:
     Game(){
         score = total_sun = 0;
         plant_index = -1;
         cursor_x = cursor_y = 0;
         shopping_mode = game_lose = show_cursor = false;
-        memset(&logs[0], '\0', 128);
     }
     void init_curse(){
-        initscr();
+        win = initscr();
         cbreak();
         curs_set(0);  
         keypad(stdscr, true);
@@ -82,7 +81,6 @@ public:
     }
     void buy_plant(ObjectType plant_type){
         if(!courtyard.can_add_plant(cursor_x, cursor_y)){
-            strcat(&logs[0], "Warning!This Yard Has Plant or Zombie!\n");
             return;
         }
         if(!store.buy(plant_type, total_sun)){
@@ -102,18 +100,19 @@ public:
         }
     }
     void this_render(){
+        move(0, 0);
         print(9, "==============================================");
         print(1, "GAME");
         print(9, "================================================\n");
-        print(6, "Total Sun:%d | Score:%d\n", total_sun, score);
-        print(9, "==============================================");
-        print(1, "YARD");
-        print(9, "================================================\n");
+        print(6, "Total Sun:");
+        print(2, "%d", total_sun);
+        print(6, " | Score:");
+        print(7, "%d\n", score);
     }
     void curse_render(){
-        store.curse_render(plant_index);
         this_render(); 
-        courtyard.curse_render(cursor_x, cursor_y, show_cursor, all_bullets);
+        store.curse_render(plant_index);
+        courtyard.curse_render(win, cursor_x, cursor_y, show_cursor, all_bullets);
         refresh();
     };
     void loop(){
@@ -138,8 +137,7 @@ public:
             wait();
             curse_render();
             if(game_lose){
-                move(INFO_DISPLAY_POS, 0);
-                printw("Lose Game!!!Total Score: %d\n", score);
+                print(8, "Lose Game!!!Total Score: %d\n", score);
                 refresh();
                 sleep(10);
                 endwin();

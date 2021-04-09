@@ -2,6 +2,7 @@
 #include <iostream>
 #include <utility>
 #include <assert.h>
+#include <curses.h>
 #include <stdlib.h>
 #include <vector>
 #include <sys/time.h> 

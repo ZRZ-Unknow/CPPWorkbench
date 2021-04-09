@@ -21,7 +21,12 @@ bool has_bullet_in_pos(vector<BulletStruct> &all_bullets, int coord_x, int coord
     return false;
 }
 
-void CourtYard::curse_render(int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
+void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
+    print(9, "==============================================");
+    print(1, "YARD");
+    print(9, "================================================\n");
+    int begin_y, begin_x;
+    getyx(win, begin_y, begin_x);
     for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
         printw("#");
     printw("\n");
@@ -71,16 +76,19 @@ void CourtYard::curse_render(int cursor_x, int cursor_y, bool show_cursor, vecto
             printw("#");
         printw("\n");
     }
+    int last_y, last_x;
+    getyx(win, last_y, last_x);
     for(int i=0;i<all_bullets.size();i++){
         if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()){
             continue;
         }
         int x = all_bullets[i].bullet->get_coord_x();
         int y = all_bullets[i].bullet->get_coord_y()*GRID_YLEN + all_bullets[i].bullet->get_dy();
-        move(6 + 2*x*(GRID_XLEN/2+1) + GRID_XLEN/2 + 1, y);
+        move(begin_y + 2*x*(GRID_XLEN/2+1) + GRID_XLEN/2 + 1, y);
         int color_pair_type = init_table[all_bullets[i].bullet->get_type()].color_pair;
         print(color_pair_type, "+");
     }
+    move(last_y, last_x);
 }
 
 void CourtYard::new_zomble(LivingObject *zom){
