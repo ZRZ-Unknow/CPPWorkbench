@@ -1,15 +1,12 @@
 #include <vector>
 #include <curses.h>
-#include <unistd.h>
+#include <string.h>
 #include "../../include/courtyard.h"
 #include "../../include/plant.h"
 #include "../../include/zombie.h"
-#include "../../include/common.h"
 using namespace std;
 
-void CourtYard::init(){}
-
-bool has_bullet_in_pos(vector<BulletStruct> &all_bullets, int coord_x, int coord_y, int dy){
+static bool has_bullet_in_pos(vector<BulletStruct> &all_bullets, int coord_x, int coord_y, int dy){
     for(int i=0;i<all_bullets.size();i++){
         if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()){
             continue;
@@ -19,6 +16,155 @@ bool has_bullet_in_pos(vector<BulletStruct> &all_bullets, int coord_x, int coord
         }
     }
     return false;
+}
+
+static int encounter_bullet(vector<BulletStruct> &all_bullets, int x, int y){
+    for(int i=0;i<all_bullets.size();i++){
+        if(!all_bullets[i].bullet->is_dead() && all_bullets[i].bullet->equal_position(x, y)){
+            return i;
+        }
+    }
+    return -1;
+}
+
+CourtYard::CourtYard(){
+    for(int i=0;i<COURTYARD_ROW;i++){
+        for(int j=0;j<COURTYARD_COLUMN;j++){
+            yard[i][j].set_coord(i, j);
+        }
+    }
+}
+
+void CourtYard::new_zomble(LivingObject *zom){
+    vector<int> tmp;
+    for(int i=0;i<COURTYARD_ROW;i++){
+        if(!yard[i][COURTYARD_COLUMN-1].has_zombie()){
+            tmp.push_back(i); 
+        }
+    }
+    int index = tmp[Rand(tmp.size())];
+    yard[index][COURTYARD_COLUMN-1].set_zombie(zom);
+}
+
+bool CourtYard::can_add_zomble(){
+    for(int i=0;i<COURTYARD_ROW;i++){
+        if(!yard[i][COURTYARD_COLUMN-1].has_zombie())
+            return true;
+    }
+    return false;
+}
+
+bool CourtYard::can_add_plant(int i, int j){
+    return !yard[i][j].is_planted() && !yard[i][j].has_zombie();
+}
+
+bool CourtYard::add_plant(LivingObject *pla, int i, int j){
+    assert(can_add_plant(i, j));
+    yard[i][j].set_plant(pla);
+    return true;
+}
+
+bool CourtYard::add_plant(LivingObject *pla){
+    for(int i=0;i<COURTYARD_ROW;i++){
+        for(int j=0;j<COURTYARD_COLUMN;j++){
+            if(can_add_plant(i, j)){
+                add_plant(pla, i, j);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void CourtYard::check_status(vector<BulletStruct> &all_bullets, int &score){
+    for(int i=0;i<COURTYARD_ROW;i++){
+        for(int j=0;j<COURTYARD_COLUMN;j++){
+            if(yard[i][j].is_planted()){
+                if(yard[i][j].plant->is_dead()){
+                    yard[i][j].free_plant();
+                }
+            }
+            if(yard[i][j].has_zombie()){
+                if(yard[i][j].zombie->is_dead()){
+                    score += yard[i][j].zombie->get_kill_score();
+                    yard[i][j].free_zombie();
+                }
+            }
+        }
+    }
+    for(int i=0;i<all_bullets.size();i++){
+        if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()){
+            delete all_bullets[i].bullet;
+            all_bullets.erase(all_bullets.begin()+i);
+        }
+    }
+}
+
+void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun){
+    //process CourtYard
+    for(int i=0;i<COURTYARD_ROW;i++){
+        for(int j=0;j<COURTYARD_COLUMN;j++){
+            if(yard[i][j].is_planted()){
+                if(yard[i][j].plant->get_type() == sunflower){
+                    if(yard[i][j].plant->can_act()){
+                        SunFlower *tmp = (SunFlower*)yard[i][j].plant;
+                        total_sun += tmp->gen_sun();
+                    }
+                }else if(yard[i][j].plant->get_type() == peashooter){
+                    if(yard[i][j].plant->can_act()){
+                        BulletStruct bs;
+                        bs.bullet = new Bullet;
+                        assert(j+1<COURTYARD_COLUMN);
+                        bs.bullet->set_coord(i, j);
+                        bs.bullet->set_dxy(0, GRID_YLEN-2);  //-2是因为后面有更新bullet位置
+                        all_bullets.push_back(bs);
+                    }
+                }
+                yard[i][j].plant->increase_counter();
+            }
+            if(yard[i][j].has_zombie() && encounter_bullet(all_bullets, i, j)!=-1){
+                int bullet_index = encounter_bullet(all_bullets, i, j);
+                yard[i][j].zombie->attacked(all_bullets[bullet_index].bullet->attack());
+                all_bullets[bullet_index].bullet->make_dead();
+            }
+            if(j>0 && yard[i][j-1].is_planted() && yard[i][j].has_zombie()){
+            //if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
+                if(yard[i][j].zombie->can_act())
+                    yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
+                yard[i][j].zombie->increase_counter();
+            }else if(yard[i][j].has_zombie()){
+                if(j==0){
+                    if(yard[i][j].zombie->can_act()){
+                        game_lose = true;
+                    }else{
+                        yard[i][j].zombie->increase_counter();
+                    }
+                }else{
+                    if(yard[i][j].zombie->can_act()){
+                        if(!yard[i][j-1].has_zombie()){
+                            //前进
+                            yard[i][j-1].set_zombie(yard[i][j].zombie);
+                            yard[i][j].del_zombie();
+                            yard[i][j-1].zombie->increase_counter();
+                        }else{
+                            yard[i][j].zombie->increase_counter();
+                        }
+                    }else{
+                        yard[i][j].zombie->increase_counter();
+                    }
+                }
+            }
+        }
+    }
+    //Process Bullets, advance
+    for(int i=0;i<all_bullets.size();i++){
+        if(!all_bullets[i].bullet->is_dead()){
+            if(all_bullets[i].bullet->can_act()){
+                all_bullets[i].bullet->advance(); 
+            }
+            all_bullets[i].bullet->increase_counter();
+        }
+    }
 }
 
 void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
@@ -91,113 +237,4 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
     move(last_y, last_x);
 }
 
-void CourtYard::new_zomble(LivingObject *zom){
-    vector<int> tmp;
-    for(int i=0;i<COURTYARD_ROW;i++){
-        if(!yard[i][COURTYARD_COLUMN-1].has_zombie()){
-            tmp.push_back(i); 
-        }
-    }
-    int index = tmp[Rand(tmp.size())];
-    yard[index][COURTYARD_COLUMN-1].set_zombie(zom);
-}
 
-void CourtYard::check_status(vector<BulletStruct> &all_bullets, int &score){
-    for(int i=0;i<COURTYARD_ROW;i++){
-        for(int j=0;j<COURTYARD_COLUMN;j++){
-            if(yard[i][j].is_planted()){
-                if(yard[i][j].plant->is_dead()){
-                    yard[i][j].free_plant();
-                }
-            }
-            if(yard[i][j].has_zombie()){
-                if(yard[i][j].zombie->is_dead()){
-                    score += yard[i][j].zombie->get_kill_score();
-                    yard[i][j].free_zombie();
-                }
-            }
-        }
-    }
-    for(int i=0;i<all_bullets.size();i++){
-        if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()){
-            delete all_bullets[i].bullet;
-            all_bullets.erase(all_bullets.begin()+i);
-        }
-    }
-}
-
-int encounter_bullet(vector<BulletStruct> &all_bullets, int x, int y){
-    for(int i=0;i<all_bullets.size();i++){
-        if(!all_bullets[i].bullet->is_dead() && all_bullets[i].bullet->equal_position(x, y)){
-            return i;
-        }
-    }
-    return -1;
-}
-
-void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun){
-    //process CourtYard
-    for(int i=0;i<COURTYARD_ROW;i++){
-        for(int j=0;j<COURTYARD_COLUMN;j++){
-            if(yard[i][j].is_planted()){
-                if(yard[i][j].plant->get_type() == sunflower){
-                    if(yard[i][j].plant->can_act()){
-                        SunFlower *tmp = (SunFlower*)yard[i][j].plant;
-                        total_sun += tmp->gen_sun();
-                    }
-                }else if(yard[i][j].plant->get_type() == peashooter){
-                    if(yard[i][j].plant->can_act()){
-                        BulletStruct bs;
-                        bs.bullet = new Bullet;
-                        assert(j+1<COURTYARD_COLUMN);
-                        bs.bullet->set_coord(i, j);
-                        bs.bullet->set_dxy(0, GRID_YLEN-2);  //-2是因为后面有更新bullet位置
-                        all_bullets.push_back(bs);
-                    }
-                }
-                yard[i][j].plant->increase_counter();
-            }
-            if(yard[i][j].has_zombie() && encounter_bullet(all_bullets, i, j)!=-1){
-                int bullet_index = encounter_bullet(all_bullets, i, j);
-                yard[i][j].zombie->attacked(all_bullets[bullet_index].bullet->attack());
-                all_bullets[bullet_index].bullet->make_dead();
-            }
-            if(j>0 && yard[i][j-1].is_planted() && yard[i][j].has_zombie()){
-            //if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
-                if(yard[i][j].zombie->can_act())
-                    yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
-                yard[i][j].zombie->increase_counter();
-            }else if(yard[i][j].has_zombie()){
-                if(j==0){
-                    if(yard[i][j].zombie->can_act()){
-                        game_lose = true;
-                    }else{
-                        yard[i][j].zombie->increase_counter();
-                    }
-                }else{
-                    if(yard[i][j].zombie->can_act()){
-                        if(!yard[i][j-1].has_zombie()){
-                            //前进
-                            yard[i][j-1].set_zombie(yard[i][j].zombie);
-                            yard[i][j].del_zombie();
-                            yard[i][j-1].zombie->increase_counter();
-                        }else{
-                            yard[i][j].zombie->increase_counter();
-                        }
-                    }else{
-                        yard[i][j].zombie->increase_counter();
-                    }
-                }
-            }
-        }
-    }
-    //Process Bullets, advance
-    for(int i=0;i<all_bullets.size();i++){
-        if(!all_bullets[i].bullet->is_dead()){
-            if(all_bullets[i].bullet->can_act()){
-                all_bullets[i].bullet->advance(); 
-            }
-            all_bullets[i].bullet->increase_counter();
-        }
-    }
-}
