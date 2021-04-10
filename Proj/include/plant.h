@@ -15,3 +15,9 @@ public:
     PeaShooter();
     void update(){}
 };
+
+class CherryBomb: public LivingObject{
+public:
+    CherryBomb();
+    void update(){}
+};

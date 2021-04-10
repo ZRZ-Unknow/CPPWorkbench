@@ -27,6 +27,11 @@ static int encounter_bullet(vector<BulletStruct> &all_bullets, int x, int y){
     return -1;
 }
 
+// x为行index，y为列index
+static inline bool legal_pos_in_yard(int x, int y){
+    return x>=0 && x<COURTYARD_ROW && y>=0 && y<COURTYARD_COLUMN;
+}
+
 CourtYard::CourtYard(){
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int j=0;j<COURTYARD_COLUMN;j++){
@@ -119,6 +124,22 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                         bs.bullet->set_dxy(0, GRID_YLEN-2);  //-2是因为后面有更新bullet位置
                         all_bullets.push_back(bs);
                     }
+                }else if(yard[i][j].plant->get_type() == cherrybomb){
+                    if(yard[i][j].plant->can_act()){
+                        if(legal_pos_in_yard(i-1,j) && yard[i-1][j].has_zombie()){
+                            yard[i-1][j].zombie->make_dead();
+                        } 
+                        if(legal_pos_in_yard(i+1,j) && yard[i+1][j].has_zombie()){
+                            yard[i+1][j].zombie->make_dead();
+                        } 
+                        if(legal_pos_in_yard(i,j-1) && yard[i][j-1].has_zombie()){
+                            yard[i][j-1].zombie->make_dead();
+                        } 
+                        if(legal_pos_in_yard(i,j+1) && yard[i][j+1].has_zombie()){
+                            yard[i][j+1].zombie->make_dead();
+                        } 
+                        yard[i][j].plant->make_dead();
+                    }
                 }
                 yard[i][j].plant->increase_counter();
             }
@@ -134,13 +155,13 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                 yard[i][j].zombie->increase_counter();
             }else if(yard[i][j].has_zombie()){
                 if(j==0){
-                    if(yard[i][j].zombie->can_act()){
+                    if(yard[i][j].zombie->can_act() && !yard[i][j].zombie->is_dead()){
                         game_lose = true;
                     }else{
                         yard[i][j].zombie->increase_counter();
                     }
                 }else{
-                    if(yard[i][j].zombie->can_act()){
+                    if(yard[i][j].zombie->can_act() && !yard[i][j].zombie->is_dead()){
                         if(!yard[i][j-1].has_zombie()){
                             //前进
                             yard[i][j-1].set_zombie(yard[i][j].zombie);
@@ -168,9 +189,9 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
 }
 
 void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
-    print(9, "==============================================");
-    print(1, "YARD");
-    print(9, "================================================\n");
+    print(BLUE_BLACK, "=====================================================");
+    print(GREEN_BLACK, "YARD");
+    print(BLUE_BLACK, "=======================================================\n");
     int begin_y, begin_x;
     getyx(win, begin_y, begin_x);
     for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
@@ -208,7 +229,7 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
                 else{
                     if(show_cursor && cursor_x == i && cursor_y == j){
                         for(int q=0;q<GRID_YLEN;q++){
-                            print(7, "*");
+                            print(CYAN_BLACK, "*");
                         }
                     }else{
                         for(int q=0;q<GRID_YLEN;q++) 

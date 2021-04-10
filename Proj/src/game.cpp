@@ -5,7 +5,7 @@
 
 
 Game::Game(){
-    score = total_sun = 0;
+    score = total_sun = counter = 0;
     plant_index = -1;
     cursor_x = cursor_y = 0;
     shopping_mode = game_lose = show_cursor = false;
@@ -27,21 +27,27 @@ void Game::init_curse(){
         fprintf(stderr, "无法初始化颜色\n");
         exit(2);
     }
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
-    init_pair(4, COLOR_GREEN, COLOR_BLACK);
-    init_pair(5, COLOR_WHITE, COLOR_RED);
-    init_pair(6, COLOR_WHITE, COLOR_BLACK);
-    init_pair(7, COLOR_CYAN, COLOR_BLACK);
-    init_pair(8, COLOR_RED, COLOR_BLACK);
-    init_pair(9, COLOR_BLUE, COLOR_BLACK);
+    init_pair(WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
+    init_pair(GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);
+    init_pair(YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(MAGENTA_BLACK, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+    init_pair(RED_BLACK, COLOR_RED, COLOR_BLACK);
+    init_pair(BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);
 }
 
 void Game::init(){
     store.init();
     courtyard.init();
     init_curse();
+    if(LINES<40 || COLS<113){
+        endwin();
+        printf("%d, %d\n", LINES, COLS);
+        printf("\33[1;34mMake Sure That The Length And Width Of The Terminal Meet The Requirements By Entering \33[0m");
+        printf("\33[1;31mecho $LINES,$COLUMNS\33[0m\33[1;34m.\33[0m\n");
+        printf("\33[1;34mOr You Can Simply Maxmize The Terminal.\33[0m\n");
+        exit(-1);
+    }
 }
 
 bool Game::is_cursor_available(){
@@ -49,14 +55,19 @@ bool Game::is_cursor_available(){
 }
 
 void Game::gen_sun(){
-    if(Rand(100)<5)
+    if(Rand(10000)<5)
         total_sun += 25;
 }
 void Game::gen_zombie(){
-    if(Rand(10000)<10 && courtyard.can_add_zomble()){
-        Zombie *z = new Zombie;
-        courtyard.new_zomble(z);
+    if(counter >= 3000){
+        if(Rand(4000)<10 && courtyard.can_add_zomble()){
+            Zombie *z = new Zombie;
+            courtyard.new_zomble(z);
+        }
+        if(counter>=10000)
+            counter = 0;
     }
+    counter++;
 }
 
 void Game::buy_plant(ObjectType plant_type){
@@ -77,18 +88,23 @@ void Game::buy_plant(ObjectType plant_type){
             courtyard.add_plant(p, cursor_x, cursor_y);
             break;
         }
+        case cherrybomb:{
+            CherryBomb *p = new CherryBomb;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
     }
 }
 
 void Game::this_render(){
     move(0, 0);
-    print(9, "==============================================");
-    print(1, "GAME");
-    print(9, "================================================\n");
-    print(6, "Total Sun:");
-    print(2, "%d", total_sun);
-    print(6, " | Score:");
-    print(7, "%d\n", score);
+    print(BLUE_BLACK, "=====================================================");
+    print(GREEN_BLACK, "GAME");
+    print(BLUE_BLACK, "=======================================================\n");
+    print(WHITE_BLACK, "Total Sun:");
+    print(YELLOW_BLACK, "%d", total_sun);
+    print(WHITE_BLACK, " | Score:");
+    print(CYAN_BLACK, "%d\n", score);
 }
 
 void Game::curse_render(){
@@ -122,7 +138,7 @@ void Game::start(){
         wait();
         curse_render();
         if(game_lose){
-            print(8, "Lose Game!!!Total Score: %d\n", score);
+            print(RED_BLACK, "Lose Game!!!Total Score: %d\n", score);
             refresh();
             sleep(10);
             endwin();
