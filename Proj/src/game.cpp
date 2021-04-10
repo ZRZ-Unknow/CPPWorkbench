@@ -42,7 +42,6 @@ void Game::init(){
     init_curse();
     if(LINES<40 || COLS<113){
         endwin();
-        printf("%d, %d\n", LINES, COLS);
         printf("\33[1;34mMake Sure That The Length And Width Of The Terminal Meet The Requirements By Entering \33[0m");
         printf("\33[1;31mecho $LINES,$COLUMNS\33[0m\33[1;34m.\33[0m\n");
         printf("\33[1;34mOr You Can Simply Maxmize The Terminal.\33[0m\n");
