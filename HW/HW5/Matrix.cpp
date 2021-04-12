@@ -1,19 +1,6 @@
-# HW5
+#include <iostream>
+using namespace std;
 
-*181220076 周韧哲*
-
-### 一. 概念题
-
-1. 隐式赋值操作可能会将成员指针指向同一块内存区域，可能导致double free或者内存泄漏。可以自定义赋值操作符重载函数。
-2. 创建一个新对象时用另一个已存在的同类对象初始化时调用拷贝构造函数；对两个已存在对象，用其中一个对象去改变另一个对象的状态时，调用赋值操作符重载函数。
-3. 可以实现堆内存管理，提高堆内存的分配和归还效率。
-4. c++编译器会把一个lambda表达式生成一个匿名类的匿名对象，并在类中重载函数调用运算符。
-
-### 二. 编程题
-
-1. 
-
-```c++
 class Array{
     int *data;
     int length;
@@ -109,7 +96,38 @@ public:
         }
         return tmp;
     }
+    void print(){
+        for(int i=0;i<row;i++){
+            for(int j=0;j<col;j++){
+                cout<<p_data[i].data[j]<<" ";
+            }
+            cout<<endl;
+        }
+    }
+    void set(int p){
+        for(int i=0;i<row;i++){
+            for(int j=0;j<col;j++){
+                p_data[i].data[j] = p;
+                p++;
+            }
+        }
+    }
 };
-```
 
-2. 在malloc时多申请void *大小指针，当内分配内存delete完后就可以在堆中通过这一指针free这一块内存。
+
+int main(){
+    Matrix a(2,2);
+    a.set(1);
+    Matrix b;
+    b = a; 
+    Matrix c = a+b;
+    Matrix d(2,4);
+    d.set(0);
+    Matrix e = a*d;
+    a.print();
+    b.print();
+    c.print();
+    d.print();
+    e.print();
+    return 0;
+}
