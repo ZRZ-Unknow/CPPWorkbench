@@ -21,11 +21,14 @@ public:
 class Store{
 public:
     PlantPlate plants[PLANT_NUM];
+    int plant_index;
 public:
     Store();
-    void init(){}
+    void init(){
+        plant_index = -1;
+    }
     bool buy(ObjectType type, int &total_sun);
     void update();
-    void curse_render(int plant_index);
+    void curse_render();
     friend class Game;
 };

@@ -12,9 +12,9 @@ using namespace std;
 
 #define GRID_YLEN 14
 #define GRID_XLEN 5
-#define COURTYARD_ROW 5
+#define COURTYARD_ROW 3
 #define COURTYARD_COLUMN 8
-#define PLANT_NUM 3
+#define PLANT_NUM 10
 #define ZOMBIE_NUM 1
 
 #define REFRESH_RATE 10000
@@ -37,7 +37,8 @@ using namespace std;
     attroff(A_BOLD | COLOR_PAIR(color_pair_type));}while(0);\
 
 enum ObjectType{
-    sunflower, peashooter, cherrybomb, zombie, bullet,
+    sunflower, peashooter, doubleshooter, iceshooter, cherrybomb, wugua, nutwall,
+    highnutwall, garlic, pumpkin, zombie, bullet,
 };
 
 struct InitTable{

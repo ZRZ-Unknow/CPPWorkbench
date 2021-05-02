@@ -22,7 +22,7 @@ void Store::update(){
     }
 }
 
-void Store::curse_render(int plant_index){
+void Store::curse_render(){
     print(BLUE_BLACK, "=====================================================");
     print(GREEN_BLACK, "STORE");
     print(BLUE_BLACK, "======================================================\n");

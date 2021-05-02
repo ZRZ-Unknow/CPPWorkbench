@@ -12,7 +12,6 @@
 class Game{
     int score;
     int total_sun;
-    int plant_index;
     int counter;
     int cursor_x, cursor_y;
     bool shopping_mode;

@@ -6,9 +6,9 @@
 
 Game::Game(){
     score = total_sun = counter = 0;
-    plant_index = -1;
     cursor_x = cursor_y = 0;
-    shopping_mode = game_lose = show_cursor = false;
+    shopping_mode = game_lose = false;
+    show_cursor = true;
 }
 
 void Game::init_curse(){
@@ -40,13 +40,13 @@ void Game::init(){
     store.init();
     courtyard.init();
     init_curse();
-    if(LINES<40 || COLS<113){
+    /*if(LINES<40 || COLS<113){
         endwin();
         printf("\33[1;34mMake Sure That The Length And Width Of The Terminal Meet The Requirements By Entering \33[0m");
         printf("\33[1;31mecho $LINES,$COLUMNS\33[0m\33[1;34m.\33[0m\n");
         printf("\33[1;34mOr You Can Simply Maxmize The Terminal.\33[0m\n");
         exit(-1);
-    }
+    }*/
 }
 
 bool Game::is_cursor_available(){
@@ -54,24 +54,25 @@ bool Game::is_cursor_available(){
 }
 
 void Game::gen_sun(){
-    if(Rand(10000)<5)
+    if(Rand(10000)<500)
         total_sun += 25;
 }
 void Game::gen_zombie(){
-    if(counter >= 3000){
+    if(counter >= 300){
         if(Rand(4000)<10 && courtyard.can_add_zomble()){
             Zombie *z = new Zombie;
             courtyard.new_zomble(z);
         }
-        if(counter>=10000)
+        if(counter>=10000000)    //10000
             counter = 0;
     }
     counter++;
 }
 
 void Game::buy_plant(ObjectType plant_type){
-    if(!courtyard.can_add_plant(cursor_x, cursor_y)){
-            return;
+    bool mount = plant_type==pumpkin;
+    if(!courtyard.can_add_plant(cursor_x, cursor_y, mount)){
+        return;
     }
     if(!store.buy(plant_type, total_sun)){
         return;
@@ -108,7 +109,7 @@ void Game::this_render(){
 
 void Game::curse_render(){
     this_render(); 
-    store.curse_render(plant_index);
+    store.curse_render();
     courtyard.curse_render(win, cursor_x, cursor_y, show_cursor, all_bullets);
     refresh();
 };
@@ -158,46 +159,50 @@ void Game::process_key(char key){
     switch(key){
         case KEYU: printf("KEY u\n");break;
         case KEYENTER:{
-            if(plant_index!=-1 && shopping_mode){
-                ObjectType plant_type = ObjectType(plant_index);
+            if(!shopping_mode && store.plant_index!=-1){
+                ObjectType plant_type = ObjectType(store.plant_index);
                 buy_plant(plant_type);
             }
             break;
         } 
         case KEYB:{
             shopping_mode = true;
-            show_cursor = true;
+            show_cursor = false;
+            if(store.plant_index == -1)
+                store.plant_index = 0;
             break;
         }
         case KEYX:{
             shopping_mode = false;
-            show_cursor = false;
-            break;
-        }
-        case KEY1:case KEY2:case KEY3:case KEY4:{
-            plant_index = key-'1';
+            show_cursor = true;
             break;
         }
         case KEYLEFT:{
-            if(is_cursor_available()){
+            if(!shopping_mode && is_cursor_available()){
                 if(cursor_y > 0) cursor_y -= 1;
             }
             break;
         }
         case KEYRIGHT:{
-            if(is_cursor_available()){
+            if(!shopping_mode && is_cursor_available()){
                 if(cursor_y < COURTYARD_COLUMN-2) cursor_y += 1;  //-2代表最后一列不能种
             }
             break;
         }
         case KEYUP:{
-            if(is_cursor_available()){
+            if(shopping_mode){
+                if(store.plant_index>0)
+                    store.plant_index--;
+            }else if(is_cursor_available()){
                 if(cursor_x > 0) cursor_x -= 1;
             }
             break;
         }
         case KEYDOWN:{
-            if(is_cursor_available()){
+            if(shopping_mode){
+                if(store.plant_index<PLANT_NUM-1)
+                    store.plant_index++;
+            }else if(is_cursor_available()){
                 if(cursor_x < COURTYARD_ROW-1) cursor_x += 1;
             }
             break;

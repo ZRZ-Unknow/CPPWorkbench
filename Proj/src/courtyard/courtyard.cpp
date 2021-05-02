@@ -43,7 +43,7 @@ CourtYard::CourtYard(){
 void CourtYard::new_zomble(LivingObject *zom){
     vector<int> tmp;
     for(int i=0;i<COURTYARD_ROW;i++){
-        if(!yard[i][COURTYARD_COLUMN-1].has_zombie()){
+        if(yard[i][COURTYARD_COLUMN-1].can_add_zombie()){
             tmp.push_back(i); 
         }
     }
@@ -53,27 +53,27 @@ void CourtYard::new_zomble(LivingObject *zom){
 
 bool CourtYard::can_add_zomble(){
     for(int i=0;i<COURTYARD_ROW;i++){
-        if(!yard[i][COURTYARD_COLUMN-1].has_zombie())
+        if(yard[i][COURTYARD_COLUMN-1].can_add_zombie())
             return true;
     }
     return false;
 }
 
-bool CourtYard::can_add_plant(int i, int j){
-    return !yard[i][j].is_planted() && !yard[i][j].has_zombie();
+bool CourtYard::can_add_plant(int i, int j, int mount){
+    return !yard[i][j].is_planted(mount);
 }
 
-bool CourtYard::add_plant(LivingObject *pla, int i, int j){
-    assert(can_add_plant(i, j));
-    yard[i][j].set_plant(pla);
+bool CourtYard::add_plant(LivingObject *pla, int i, int j, int mount){
+    assert(can_add_plant(i, j, mount));
+    yard[i][j].set_plant(pla, mount);
     return true;
 }
 
-bool CourtYard::add_plant(LivingObject *pla){
+bool CourtYard::add_plant(LivingObject *pla, int mount){
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int j=0;j<COURTYARD_COLUMN;j++){
-            if(can_add_plant(i, j)){
-                add_plant(pla, i, j);
+            if(can_add_plant(i, j, mount)){
+                add_plant(pla, i, j, mount);
                 return true;
             }
         }
@@ -84,15 +84,22 @@ bool CourtYard::add_plant(LivingObject *pla){
 void CourtYard::check_status(vector<BulletStruct> &all_bullets, int &score){
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int j=0;j<COURTYARD_COLUMN;j++){
+            if(yard[i][j].is_planted(true)){
+                if(yard[i][j].plant_mount->is_dead()){
+                    yard[i][j].free_plant(true);
+                }
+            }
             if(yard[i][j].is_planted()){
                 if(yard[i][j].plant->is_dead()){
                     yard[i][j].free_plant();
                 }
             }
             if(yard[i][j].has_zombie()){
-                if(yard[i][j].zombie->is_dead()){
-                    score += yard[i][j].zombie->get_kill_score();
-                    yard[i][j].free_zombie();
+                for(int p=0;p<yard[i][j].zombies.size();i++){
+                    if(yard[i][j].zombies[p]->is_dead()){
+                        score += yard[i][j].zombies[p]->get_kill_score();
+                        yard[i][j].free_zombie(p);
+                    }
                 }
             }
         }
@@ -126,7 +133,7 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                     }
                 }else if(yard[i][j].plant->get_type() == cherrybomb){
                     if(yard[i][j].plant->can_act()){
-                        if(legal_pos_in_yard(i-1,j) && yard[i-1][j].has_zombie()){
+                        /*if(legal_pos_in_yard(i-1,j) && yard[i-1][j].has_zombie()){
                             yard[i-1][j].zombie->make_dead();
                         } 
                         if(legal_pos_in_yard(i+1,j) && yard[i+1][j].has_zombie()){
@@ -138,40 +145,50 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                         if(legal_pos_in_yard(i,j+1) && yard[i][j+1].has_zombie()){
                             yard[i][j+1].zombie->make_dead();
                         } 
-                        yard[i][j].plant->make_dead();
+                        yard[i][j].plant->make_dead();*/
                     }
                 }
                 yard[i][j].plant->increase_counter();
             }
             if(yard[i][j].has_zombie() && encounter_bullet(all_bullets, i, j)!=-1){
                 int bullet_index = encounter_bullet(all_bullets, i, j);
-                yard[i][j].zombie->attacked(all_bullets[bullet_index].bullet->attack());
+                yard[i][j].zombies[0]->attacked(all_bullets[bullet_index].bullet->attack());
                 all_bullets[bullet_index].bullet->make_dead();
             }
-            if(j>0 && yard[i][j-1].is_planted() && yard[i][j].has_zombie()){
-            //if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
-                if(yard[i][j].zombie->can_act())
-                    yard[i][j-1].plant->attacked(yard[i][j].zombie->attack());
-                yard[i][j].zombie->increase_counter();
+            if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
+                for(int p=0;p<yard[i][j].zombies.size();p++){
+                    if(yard[i][j].zombies[p]->can_act()){
+                        if(yard[i][j].is_planted(true))
+                            yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
+                        else
+                            yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                    }
+                    yard[i][j].zombies[p]->increase_counter();
+                }
             }else if(yard[i][j].has_zombie()){
                 if(j==0){
-                    if(yard[i][j].zombie->can_act() && !yard[i][j].zombie->is_dead()){
-                        game_lose = true;
-                    }else{
-                        yard[i][j].zombie->increase_counter();
+                    for(int p=0;p<yard[i][j].zombies.size();p++){
+                        if(yard[i][j].zombies[p]->can_act() && !yard[i][j].zombies[p]->is_dead()){
+                            game_lose = true;
+                        }else{
+                            yard[i][j].zombies[p]->increase_counter();
+                        }
                     }
                 }else{
-                    if(yard[i][j].zombie->can_act() && !yard[i][j].zombie->is_dead()){
-                        if(!yard[i][j-1].has_zombie()){
-                            //前进
-                            yard[i][j-1].set_zombie(yard[i][j].zombie);
-                            yard[i][j].del_zombie();
-                            yard[i][j-1].zombie->increase_counter();
+                    for(int p=0;p<yard[i][j].zombies.size();){
+                        if(yard[i][j].zombies[p]->can_act() && !yard[i][j].zombies[p]->is_dead()){
+                            if(yard[i][j-1].can_add_zombie()){
+                                //前进
+                                yard[i][j].zombies[p]->increase_counter();
+                                yard[i][j-1].set_zombie(yard[i][j].zombies[p]);
+                                yard[i][j].del_zombie(p);
+                            }else{
+                                yard[i][j].zombies[p]->increase_counter();
+                            }
                         }else{
-                            yard[i][j].zombie->increase_counter();
+                            yard[i][j].zombies[p]->increase_counter();
+                            p++;
                         }
-                    }else{
-                        yard[i][j].zombie->increase_counter();
                     }
                 }
             }
@@ -200,33 +217,26 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int p=0;p<GRID_XLEN;p++){
             for(int j=0;j<COURTYARD_COLUMN;j++){
-                if(p%2 == 0){
-                    if(p == (GRID_XLEN/2) && yard[i][j].is_planted()){
+                bool zombie_on_curse = false;
+                if(p == (GRID_XLEN/2)){
+                    if(yard[i][j].is_planted()){
                         char *pname = yard[i][j].get_plant_name();
                         printw("# ");
                         int color_pair_type = init_table[yard[i][j].get_plant_type()].color_pair;
                         print(color_pair_type, "%s", pname);
-                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
-                        printw("#"); 
-                    }else if(p == (GRID_XLEN/2) && yard[i][j].has_zombie()){
-                        char *pname = yard[i][j].get_zombie_name();
-                        printw("# ");
-                        int color_pair_type = init_table[yard[i][j].get_zombie_type()].color_pair;
-                        print(color_pair_type, "%s", pname);
-                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
-                        printw("#"); 
-                    }else if(p == GRID_XLEN-1){
-                        for(int t=0;t<GRID_YLEN;t++){
-                            if(t==0 || t==GRID_YLEN-1) printw("#");
-                            else printw(" ");
+                        if(yard[i][j].is_planted(true)){
+                            print(color_pair_type, "|");
+                            for(int q=0;q<GRID_YLEN-2-strlen(pname)-2;q++) printw(" ");
+                        }else{
+                            for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
                         }
+                        printw("#"); 
                     }else{
                         printw("#");
                         for(int q=0;q<GRID_YLEN-2;q++) printw(" ");
                         printw("#");
                     }
-                }
-                else{
+                }else if(p == (GRID_XLEN/2-1) || p == (GRID_XLEN/2+1)){
                     if(show_cursor && cursor_x == i && cursor_y == j){
                         for(int q=0;q<GRID_YLEN;q++){
                             print(CYAN_BLACK, "*");
@@ -235,20 +245,30 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
                         for(int q=0;q<GRID_YLEN;q++) 
                             printw(" ");
                     }
+                }else if(yard[i][j].has_zombie(p)){
+                    char *pname = yard[i][j].get_zombie_name(p);
+                    printw("# ");
+                    int color_pair_type = init_table[yard[i][j].get_zombie_type(p)].color_pair;
+                    print(color_pair_type, "%s", pname);
+                    for(int q=0;q<GRID_YLEN-2-strlen(pname)-1;q++) printw(" ");
+                    printw("#"); 
+                }
+                else{
+                    printw("#");
+                    for(int q=0;q<GRID_YLEN-2;q++) printw(" ");
+                    printw("#");
                 }
             }
             printw("\n");
         }
-        for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
+        for(int q=0;q<GRID_YLEN*COURTYARD_COLUMN;q++)
             printw("#");
         printw("\n");
     }
     int last_y, last_x;
     getyx(win, last_y, last_x);
     for(int i=0;i<all_bullets.size();i++){
-        if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()){
-            continue;
-        }
+        if(all_bullets[i].bullet->is_dead() || all_bullets[i].bullet->beyond_boundary()) continue;
         int x = all_bullets[i].bullet->get_coord_x();
         int y = all_bullets[i].bullet->get_coord_y()*GRID_YLEN + all_bullets[i].bullet->get_dy();
         move(begin_y + 2*x*(GRID_XLEN/2+1) + GRID_XLEN/2 + 1, y);
