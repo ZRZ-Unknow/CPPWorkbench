@@ -52,11 +52,18 @@ struct InitTable{
     int kill_score;
     int color_pair;
 }static init_table[] = {
-    { "SunFlower",  70,    0,  50, 50,  5,  0, 800,  0, YELLOW_BLACK},
-    {"PeaShooter",  70,    0, 100,  0,  5,  0,  50,  0, GREEN_BLACK},
-    {"CherryBomb",  70, 1000, 200,  0, 10,  0, 200,  0, RED_BLACK},
-    {"Zombie"    , 100,   20,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {"Bullet"    ,   1,    2,   0,  0,  0,  2,  10,  0, GREEN_BLACK},
+    {  "SunFlower",  70,    0,  50, 50,  5,  0, 800,  0, YELLOW_BLACK},
+    { "PeaShooter",  70,    0, 100,  0,  5,  0,  50,  0, GREEN_BLACK},
+    {"DoubleShoot",  70,    0, 100,  0,  5,  0,  25,  0, GREEN_BLACK},
+    { "IceShooter",  70,    0, 100,  0,  5,  0,  50,  0, GREEN_BLACK},
+    { "CherryBomb",  70, 1000, 150,  0, 10,  0, 200,  0, RED_BLACK},
+    {      "Wugua",  70, 1000, 125,  0, 10,  0, 100,  0, RED_BLACK},
+    {    "NutWall", 200,    0, 70,  0,  5,  0,  50,  0, GREEN_BLACK},
+    {"HighNutWall", 400,    0, 200,  0,  5,  0,  50,  0, GREEN_BLACK},
+    {     "Garlic",  70,    0, 125,  0, 10,  0, 100,  0, RED_BLACK},
+    {    "Pumpkin", 200,    0, 125,  0, 10,  0, 100,  0, RED_BLACK},
+    { "Zombie"    , 100,   20,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    { "Bullet"    ,   1,    2,   0,  0,  0,  2,  10,  0, GREEN_BLACK},
 };
 
 
