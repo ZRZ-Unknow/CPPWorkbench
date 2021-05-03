@@ -23,9 +23,9 @@ void Store::update(){
 }
 
 void Store::curse_render(){
-    print(BLUE_BLACK, "=====================================================");
+    print(BLUE_BLACK, "=====================================================================================");
     print(GREEN_BLACK, "STORE");
-    print(BLUE_BLACK, "======================================================\n");
+    print(BLUE_BLACK, "======================================================================================\n");
     for(int i=0;i<PLANT_NUM;i++){
         if(plant_index == i){
             print(RED_BLACK, "%d.%s:%d, CD Time:%d\n", i+1, plants[i].get_name(), plants[i].sun_cost, plants[i].counter);

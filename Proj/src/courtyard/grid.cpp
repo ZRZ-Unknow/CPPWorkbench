@@ -3,7 +3,8 @@
 
 Grid::Grid(){
     plant = plant_mount = NULL;
-    free_space = GRID_XLEN-1;
+    for(int i=0;i<ZOMBIE_SPACE;i++)
+        zombies[i] = NULL;
 }
 void Grid::set_coord(int x, int y){
     coord_x = x;
@@ -13,11 +14,22 @@ bool Grid::is_planted(bool mount) const{
     if(mount) return plant_mount != NULL;
     return plant != NULL;
 }
+int Grid::get_free_space(int find_first) const{
+    int tmp = 0;
+    for(int i=0;i<ZOMBIE_SPACE;i++){
+        if(zombies[i]==NULL){
+            if(find_first) return i;
+            tmp++;
+        }
+    }
+    return tmp;
+}
 bool Grid::has_zombie() const{
-    return zombies.size() > 0;
+    return get_free_space() < ZOMBIE_SPACE;
 }
 bool Grid::has_zombie(int vec_ind) const{
-    return zombies.size() > vec_ind;
+    if(vec_ind>ZOMBIE_SPACE-1) return false;
+    return zombies[vec_ind] != NULL;
 }
 void Grid::set_plant(LivingObject *plant, bool mount){
     assert(!is_planted(mount));
@@ -40,18 +52,21 @@ void Grid::free_plant(bool mount){
     }
 }
 bool Grid::can_add_zombie() const{
-    return zombies.size()<GRID_XLEN-1;
+    return get_free_space()>0;
 }
 void Grid::set_zombie(LivingObject *zombie){
     assert(can_add_zombie());
-    zombies.push_back(zombie);
+    int ind = get_free_space(true);
+    zombies[ind] = zombie;
 }
 void Grid::del_zombie(int vec_ind){
-    zombies.erase(zombies.begin()+vec_ind);
+    assert(zombies[vec_ind]!=NULL);
+    zombies[vec_ind] = NULL;
 }
 void Grid::free_zombie(int vec_ind){
+    assert(zombies[vec_ind]!=NULL);
     delete zombies[vec_ind];
-    zombies.erase(zombies.begin()+vec_ind);
+    zombies[vec_ind] = NULL;
 }
 char* Grid::get_plant_name(){
     assert(is_planted());
@@ -59,6 +74,7 @@ char* Grid::get_plant_name(){
     return &init_table[type].name[0]; 
 }
 char* Grid::get_zombie_name(int vec_ind){
+    assert(zombies[vec_ind]!=NULL);
     ObjectType type = zombies[vec_ind]->get_type();
     return &init_table[type].name[0];
 }
@@ -67,5 +83,6 @@ ObjectType Grid::get_plant_type(){
     return plant->get_type();
 }
 ObjectType Grid::get_zombie_type(int vec_ind){
+    assert(zombies[vec_ind]!=NULL);
     return zombies[vec_ind]->get_type();
 }

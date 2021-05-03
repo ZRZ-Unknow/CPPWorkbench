@@ -59,7 +59,7 @@ void Game::gen_sun(){
 }
 void Game::gen_zombie(){
     if(counter >= 300){
-        if(Rand(4000)<10 && courtyard.can_add_zomble()){
+        if(Rand(4000)<100 && courtyard.can_add_zomble()){
             Zombie *z = new Zombie;
             courtyard.new_zomble(z);
         }
@@ -93,14 +93,49 @@ void Game::buy_plant(ObjectType plant_type){
             courtyard.add_plant(p, cursor_x, cursor_y);
             break;
         }
+        case doubleshooter:{
+            DoubleShooter *p = new DoubleShooter;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case iceshooter:{
+            IceShooter *p = new IceShooter;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case wugua:{
+            Wugua *p = new Wugua;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case nutwall:{
+            NutWall *p = new NutWall;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case highnutwall:{
+            HighNutWall *p = new HighNutWall;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case garlic:{
+            Garlic *p = new Garlic;
+            courtyard.add_plant(p, cursor_x, cursor_y);
+            break;
+        }
+        case pumpkin:{
+            Pumpkin *p = new Pumpkin;
+            courtyard.add_plant(p, cursor_x, cursor_y, mount);
+            break;
+        }
     }
 }
 
 void Game::this_render(){
     move(0, 0);
-    print(BLUE_BLACK, "=====================================================");
+    print(BLUE_BLACK, "=====================================================================================");
     print(GREEN_BLACK, "GAME");
-    print(BLUE_BLACK, "=======================================================\n");
+    print(BLUE_BLACK, "=======================================================================================\n");
     print(WHITE_BLACK, "Total Sun:");
     print(YELLOW_BLACK, "%d", total_sun);
     print(WHITE_BLACK, " | Score:");

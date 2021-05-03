@@ -27,3 +27,53 @@ CherryBomb::CherryBomb(){
     this->act_time = init_table[cherrybomb].act_time;
     this->counter = 1;
 }
+
+DoubleShooter::DoubleShooter(){
+    this->type = doubleshooter;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}
+
+IceShooter::IceShooter(){
+    this->type = iceshooter;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}
+
+Wugua::Wugua(){
+    this->type = wugua;
+    this->health = init_table[this->type].health;
+    this->attack_damage = init_table[this->type].attack_damage;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 1;
+}
+
+NutWall::NutWall(){
+    this->type = nutwall;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}
+
+HighNutWall::HighNutWall(){
+    this->type = highnutwall;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}
+
+Garlic::Garlic(){
+    this->type = garlic;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}
+
+Pumpkin::Pumpkin(){
+    this->type = pumpkin;
+    this->health = init_table[this->type].health;
+    this->act_time = init_table[this->type].act_time;
+    this->counter = 0;
+}

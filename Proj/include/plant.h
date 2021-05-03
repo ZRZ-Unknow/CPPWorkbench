@@ -21,3 +21,45 @@ public:
     CherryBomb();
     void update(){}
 };
+
+class DoubleShooter: public LivingObject{
+public:
+    DoubleShooter();
+    void update(){}
+};
+
+class IceShooter: public LivingObject{
+public:
+    IceShooter();
+    void update(){}
+};
+
+class Wugua: public LivingObject{
+public:
+    Wugua();
+    void update(){}
+};
+
+class NutWall: public LivingObject{
+public:
+    NutWall();
+    void update(){}
+};
+
+class HighNutWall: public LivingObject{
+public:
+    HighNutWall();
+    void update(){}
+};
+
+class Garlic: public LivingObject{
+public:
+    Garlic();
+    void update(){}
+};
+
+class Pumpkin: public LivingObject{
+public:
+    Pumpkin();
+    void update(){}
+};

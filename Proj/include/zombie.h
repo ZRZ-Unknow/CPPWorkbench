@@ -4,8 +4,12 @@
 
 class Zombie: public LivingObject{
     int speed;
+    int frozen_time;
 public:
     Zombie();
-    void update(){}
+    void update();
 };
+
+
+
 

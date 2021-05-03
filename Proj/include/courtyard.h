@@ -6,16 +6,15 @@ using namespace std;
 
 class Grid{
     int coord_x, coord_y;
-    int free_space;
-    bool space_free[GRID_XLEN-1];
     LivingObject *plant, *plant_mount;
-    vector<LivingObject*> zombies;
+    LivingObject *zombies[ZOMBIE_SPACE];
 public:
     Grid();
     void set_coord(int x, int y);
     bool is_planted(bool mount=false) const;
     bool has_zombie() const;
     bool has_zombie(int vec_ind) const;
+    int get_free_space(int find_first=false) const;
     bool can_add_zombie() const;
     void set_plant(LivingObject *plant, bool mount=false);
     void del_plant(bool mount=false);
