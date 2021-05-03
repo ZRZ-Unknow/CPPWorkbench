@@ -39,7 +39,7 @@ using namespace std;
 
 enum ObjectType{
     sunflower, peashooter, cherrybomb, doubleshooter, iceshooter,  wugua, nutwall, highnutwall, garlic, pumpkin,
-    zombie, barricadezombie, newspaperzombie, polezombie, clownzombie, slingzombie, bullet, icebullet,
+    zombie, barricadezombie, newspaperzombie, polezombie, clownzombie, slingzombie, bullet, icebullet, ball
 };
 
 struct InitTable{
@@ -57,10 +57,10 @@ struct InitTable{
 }static init_table[] = {
     {      "SunFlower",  70,    0,  50,  1, 50,  5,  0, 800,  0, YELLOW_BLACK},
     {     "PeaShooter",  70,    0, 100,  1,  0,  5,  0,  50,  0, GREEN_BLACK},
-    {     "CherryBomb",  70, 1000, 150,  1,  0, 10,  0, 200,  0, RED_BLACK},
+    {     "CherryBomb",  70, 1000, 150,  1,  0, 10,  0, 100,  0, RED_BLACK},
     {  "DoubleShooter",  70,    0, 200,  1,  0,  5,  0,  25,  0, GREEN_BLACK},
     {     "IceShooter",  70,    0, 200,  1,  0,  5,  0,  50,  0, GREEN_BLACK},
-    {          "Wugua",  70, 1000, 125,  1,  0,  5,  0, 200,  0, GREEN_BLACK},
+    {          "Wugua",  70, 1000, 125,  1,  0,  5,  0, 100,  0, GREEN_BLACK},
     {        "NutWall", 200,    0, 70,   1,  0,  5,  0,   1,  0, YELLOW_BLACK},
     {    "HighNutWall", 400,    0, 200,  1,  0,  5,  0,  50,  0, YELLOW_BLACK},
     {         "Garlic",  70,    0, 125,  1,  0,  5,  0,   1,  0, RED_BLACK},
@@ -73,6 +73,7 @@ struct InitTable{
     {    "SlingZombie", 100,    5,   0,  1,  0,  0,  1, 800, 50, MAGENTA_BLACK},
     {         "Bullet",   1,    2,   0,  1,  0,  0,  2,  10,  0, GREEN_BLACK},
     {      "IceBullet",   1,    2,   0,  1,  0,  0,  2,  10,  0, WHITE_BLACK},
+    {           "Ball",   1,   30,   0,  1,  0,  0,  2,  10,  0, YELLOW_BLACK},
 };
 
 

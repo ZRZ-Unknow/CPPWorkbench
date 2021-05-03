@@ -40,13 +40,13 @@ void Game::init(){
     store.init();
     courtyard.init();
     init_curse();
-    /*if(LINES<40 || COLS<113){
+    if(LINES<48 || COLS<190){
         endwin();
         printf("\33[1;34mMake Sure That The Length And Width Of The Terminal Meet The Requirements By Entering \33[0m");
         printf("\33[1;31mecho $LINES,$COLUMNS\33[0m\33[1;34m.\33[0m\n");
         printf("\33[1;34mOr You Can Simply Maxmize The Terminal.\33[0m\n");
         exit(-1);
-    }*/
+    }
 }
 
 bool Game::is_cursor_available(){
@@ -165,9 +165,9 @@ void Game::buy_plant(ObjectType plant_type){
 
 void Game::this_render(){
     move(0, 0);
-    print(BLUE_BLACK, "=====================================================================================");
+    print(BLUE_BLACK, "=========================================================================================");
     print(GREEN_BLACK, "GAME");
-    print(BLUE_BLACK, "=======================================================================================\n");
+    print(BLUE_BLACK, "===========================================================================================\n");
     print(WHITE_BLACK, "Total Sun:");
     print(YELLOW_BLACK, "%d", total_sun);
     print(WHITE_BLACK, " | Score:");
@@ -177,7 +177,7 @@ void Game::this_render(){
 void Game::curse_render(){
     this_render(); 
     store.curse_render();
-    courtyard.curse_render(win, cursor_x, cursor_y, show_cursor, all_bullets);
+    courtyard.curse_render(win, cursor_x, cursor_y, show_cursor, all_bullets, all_balls);
     refresh();
 };
 
@@ -185,9 +185,9 @@ void Game::loop(){
     //首先check status，检查子弹、僵尸、植物等是否死亡，并更新分数。
     //然后update，僵尸前进，植物产生阳光，植物产生子弹，子弹前进，判断是否吃植物，是否打中僵尸。
     //最后随机产生阳光、新僵尸等。
-    courtyard.check_status(all_bullets, score);
+    courtyard.check_status(all_bullets, all_balls, score);
     store.update();
-    courtyard.update(all_bullets, game_lose, total_sun);
+    courtyard.update(all_bullets, all_balls, game_lose, total_sun);
     gen_sun();
     gen_zombie();
 }

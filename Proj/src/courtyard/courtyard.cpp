@@ -27,6 +27,14 @@ static int encounter_bullet(vector<BulletStruct> &all_bullets, int x, int y){
     return -1;
 }
 
+static int encounter_balls(vector<BallStruct> &all_balls, int x, int y){
+    for(int i=0;i<all_balls.size();i++){
+        if(!all_balls[i].ball->is_dead() && all_balls[i].ball->equal_position(x, y) && all_balls[i].ball->get_dy()==GRID_YLEN/2){
+            return i;
+        }
+    }
+    return -1;
+}
 // x为行index，y为列index
 static inline bool legal_pos_in_yard(int x, int y){
     return x>=0 && x<COURTYARD_ROW && y>=0 && y<COURTYARD_COLUMN;
@@ -97,7 +105,7 @@ bool CourtYard::add_plant(LivingObject *pla, int mount){
     return false;
 }
 
-void CourtYard::check_status(vector<BulletStruct> &all_bullets, int &score){
+void CourtYard::check_status(vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls, int &score){
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int j=0;j<COURTYARD_COLUMN;j++){
             if(yard[i][j].is_planted(true)){
@@ -124,9 +132,15 @@ void CourtYard::check_status(vector<BulletStruct> &all_bullets, int &score){
             all_bullets.erase(all_bullets.begin()+i);
         }
     }
+    for(int i=0;i<all_balls.size();i++){
+        if(all_balls[i].ball->is_dead() || all_balls[i].ball->beyond_boundary()){
+            delete all_balls[i].ball;
+            all_balls.erase(all_balls.begin()+i);
+        }
+    }
 }
 
-void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun){
+void CourtYard::update(vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls, bool &game_lose, int &total_sun){
     //process CourtYard
     for(int i=0;i<COURTYARD_ROW;i++){
         for(int j=0;j<COURTYARD_COLUMN;j++){
@@ -180,6 +194,16 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                     }
                 }
                 yard[i][j].plant->increase_counter();
+                int ball_index = encounter_balls(all_balls, i, j);
+                while(ball_index!=-1){
+                    if(yard[i][j].is_planted(true) && !yard[i][j].plant_mount->is_dead()){
+                        yard[i][j].plant_mount->attacked(all_balls[ball_index].ball->attack()); 
+                    }else if(yard[i][j].is_planted()){
+                        yard[i][j].plant->attacked(all_balls[ball_index].ball->attack()); 
+                    }
+                    all_balls[ball_index].ball->make_dead();
+                    ball_index = encounter_balls(all_balls, i, j);
+                }
             }
             if(yard[i][j].has_zombie() && encounter_bullet(all_bullets, i, j)!=-1){
                 int bullet_index = encounter_bullet(all_bullets, i, j);
@@ -254,6 +278,11 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                                 tmp->use_ball();
                                 yard[i][j].zombies[p]->increase_counter();
                                 yard[i][j].zombies[p]->update();
+                                BallStruct bs;
+                                bs.ball = new Ball;
+                                bs.ball->set_coord(i, j);
+                                bs.ball->set_dxy(0, 4);  
+                                all_balls.push_back(bs);
                             }else{
                                 if(!tmp->having_ball() && tmp->can_act()){
                                     yard[i][j].plant->make_dead();
@@ -334,6 +363,11 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                                     tmp->use_ball();
                                     yard[i][j].zombies[p]->increase_counter();
                                     yard[i][j].zombies[p]->update();
+                                    BallStruct bs;
+                                    bs.ball = new Ball;
+                                    bs.ball->set_coord(i, j);
+                                    bs.ball->set_dxy(0, 4);  
+                                    all_balls.push_back(bs);
                                 }else{
                                     if(!tmp->having_ball() && tmp->can_act()){
                                         if(j>0 && yard[i][j-1].can_add_zombie()){
@@ -370,7 +404,7 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
             }
         }
     }
-    //Process Bullets, advance
+    //Process Bullets, Balls, advance
     for(int i=0;i<all_bullets.size();i++){
         if(!all_bullets[i].bullet->is_dead()){
             if(all_bullets[i].bullet->can_act()){
@@ -379,12 +413,20 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
             all_bullets[i].bullet->increase_counter();
         }
     }
+    for(int i=0;i<all_balls.size();i++){
+        if(!all_balls[i].ball->is_dead()){
+            if(all_balls[i].ball->can_act()){
+                all_balls[i].ball->advance(); 
+            }
+            all_balls[i].ball->increase_counter();
+        }
+    }
 }
 
-void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets){
-    print(BLUE_BLACK, "=====================================================================================");
+void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls){
+    print(BLUE_BLACK, "=========================================================================================");
     print(GREEN_BLACK, "YARD");
-    print(BLUE_BLACK, "=======================================================================================\n");
+    print(BLUE_BLACK, "===========================================================================================\n");
     int begin_y, begin_x;
     getyx(win, begin_y, begin_x);
     for(int i=0;i<GRID_YLEN*COURTYARD_COLUMN;i++)
@@ -624,6 +666,14 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
         move(begin_y + 2*x*(GRID_XLEN/2+1) + GRID_XLEN/2 + 1, y);
         int color_pair_type = init_table[all_bullets[i].bullet->get_type()].color_pair;
         print(color_pair_type, "+");
+    }
+    for(int i=0;i<all_balls.size();i++){
+        if(all_balls[i].ball->is_dead() || all_balls[i].ball->beyond_boundary()) continue;
+        int x = all_balls[i].ball->get_coord_x();
+        int y = all_balls[i].ball->get_coord_y()*GRID_YLEN + all_balls[i].ball->get_dy();
+        move(begin_y + x*(GRID_XLEN+1), y);
+        int color_pair_type = init_table[all_balls[i].ball->get_type()].color_pair;
+        print(color_pair_type, "o");
     }
     move(last_y, last_x);
 }

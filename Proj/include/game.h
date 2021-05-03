@@ -20,6 +20,7 @@ class Game{
     Store store;
     CourtYard courtyard;
     vector<BulletStruct> all_bullets;
+    vector<BallStruct> all_balls;
     clock_t last_time, curr_time;
     WINDOW *win;
 public:

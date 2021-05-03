@@ -39,7 +39,7 @@ public:
     bool can_add_plant(int i, int j, int mount=false);
     bool add_plant(LivingObject *pla, int i, int j, int mount=false);
     bool add_plant(LivingObject *pla, int mount=false);
-    void check_status(vector<BulletStruct> &all_bullets, int &score);
-    void update(vector<BulletStruct> &all_bullets, bool &game_lose, int &total_sun);
-    void curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets);
+    void check_status(vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls, int &score);
+    void update(vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls, bool &game_lose, int &total_sun);
+    void curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_cursor, vector<BulletStruct> &all_bullets, vector<BallStruct> &all_balls);
 };
