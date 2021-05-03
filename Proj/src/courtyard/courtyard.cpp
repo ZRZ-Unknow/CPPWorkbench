@@ -244,11 +244,27 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, vector<BallStruct> &al
                                 if(!tmp->having_pole() && tmp->can_eat()){
                                     if(yard[i][j].is_planted(true))
                                         yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
-                                    else
+                                    else{
                                         yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                                        if(yard[i][j].get_plant_type() == garlic){
+                                            if(i+1 < COURTYARD_ROW && yard[i+1][j+1].can_add_zombie()){
+                                                yard[i][j].zombies[p]->increase_counter();
+                                                yard[i][j].zombies[p]->update();
+                                                yard[i+1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                                yard[i][j].del_zombie(p);
+                                            }else if(i-1 > 0 && yard[i-1][j+1].can_add_zombie()){
+                                                yard[i][j].zombies[p]->increase_counter();
+                                                yard[i][j].zombies[p]->update();
+                                                yard[i-1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                                yard[i][j].del_zombie(p);
+                                            }
+                                        }
+                                    }
                                 }
-                                yard[i][j].zombies[p]->increase_counter();
-                                yard[i][j].zombies[p]->update();
+                                if(yard[i][j].has_zombie(p)){
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                }
                             }
                         }else if(yard[i][j].zombies[p]->get_type() == clownzombie){
                             if(Rand(10000)<10){
@@ -266,11 +282,27 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, vector<BallStruct> &al
                                 if(yard[i][j].zombies[p]->can_eat()){
                                     if(yard[i][j].is_planted(true))
                                         yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
-                                    else
+                                    else{
                                         yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                                        if(yard[i][j].get_plant_type() == garlic){
+                                            if(i+1 < COURTYARD_ROW && yard[i+1][j+1].can_add_zombie()){
+                                                yard[i][j].zombies[p]->increase_counter();
+                                                yard[i][j].zombies[p]->update();
+                                                yard[i+1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                                yard[i][j].del_zombie(p);
+                                            }else if(i-1 > 0 && yard[i-1][j+1].can_add_zombie()){
+                                                yard[i][j].zombies[p]->increase_counter();
+                                                yard[i][j].zombies[p]->update();
+                                                yard[i-1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                                yard[i][j].del_zombie(p);
+                                            }
+                                        }
+                                    }
                                 }
-                                yard[i][j].zombies[p]->increase_counter();
-                                yard[i][j].zombies[p]->update();
+                                if(yard[i][j].has_zombie(p)){
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                }
                             }
                         }else if(yard[i][j].zombies[p]->get_type() == slingzombie){
                             SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[p];
@@ -305,11 +337,27 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, vector<BallStruct> &al
                             if(yard[i][j].zombies[p]->can_eat()){
                                 if(yard[i][j].is_planted(true))
                                     yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
-                                else
+                                else{
                                     yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                                    if(yard[i][j].get_plant_type() == garlic){
+                                        if(i+1 < COURTYARD_ROW && yard[i+1][j+1].can_add_zombie()){
+                                            yard[i][j].zombies[p]->increase_counter();
+                                            yard[i][j].zombies[p]->update();
+                                            yard[i+1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                            yard[i][j].del_zombie(p);
+                                        }else if(i-1 > 0 && yard[i-1][j+1].can_add_zombie()){
+                                            yard[i][j].zombies[p]->increase_counter();
+                                            yard[i][j].zombies[p]->update();
+                                            yard[i-1][j+1].set_zombie(yard[i][j].zombies[p]);
+                                            yard[i][j].del_zombie(p);
+                                        }
+                                    }
+                                }
                             }
-                            yard[i][j].zombies[p]->increase_counter();
-                            yard[i][j].zombies[p]->update();
+                            if(yard[i][j].has_zombie(p)){
+                                yard[i][j].zombies[p]->increase_counter();
+                                yard[i][j].zombies[p]->update();
+                            }
                         }
                     }
                 }

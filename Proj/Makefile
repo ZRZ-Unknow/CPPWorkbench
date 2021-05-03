@@ -8,7 +8,6 @@ src = $(shell find $(src_dir)/ -name "*.cpp")
 obj = $(src:$(src_dir)/%.cpp=$(build_dir)/%.o)
 subsrc = $(shell find $(src_dir)/ -name "*.cpp" | grep -v "./main.cpp")
 
-
 $(prom): $(obj) $(build_dir)
 	$(cc) -o $(prom) $(obj) -lcurses
 
@@ -21,3 +20,6 @@ $(build_dir)/%.o: $(src_dir)/%.cpp $(deps)
 
 clean:
 	rm -rf $(build_dir)
+
+count:
+	@echo "Lines Of All Codes:" $(shell find ./ -name "*.h" -or -name "*.cpp" |xargs cat|grep -v ^$$|wc -l)
