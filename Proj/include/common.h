@@ -10,7 +10,7 @@
 using namespace std;
 
 
-#define GRID_YLEN 22
+#define GRID_YLEN 23
 #define GRID_XLEN 5
 #define COURTYARD_ROW 4
 #define COURTYARD_COLUMN 8
@@ -47,6 +47,7 @@ struct InitTable{
     int health;
     int attack_damage;
     int sun_cost;
+    int defense;
     int prod_sun;
     int cd_time;
     int speed;
@@ -54,24 +55,24 @@ struct InitTable{
     int kill_score;
     int color_pair;
 }static init_table[] = {
-    {      "SunFlower",  70,    0,  50, 50,  5,  0, 800,  0, YELLOW_BLACK},
-    {     "PeaShooter",  70,    0, 100,  0,  5,  0,  50,  0, GREEN_BLACK},
-    {     "CherryBomb",  70, 1000, 150,  0, 10,  0, 200,  0, RED_BLACK},
-    {  "DoubleShooter",  70,    0, 200,  0,  5,  0,  25,  0, GREEN_BLACK},
-    {     "IceShooter",  70,    0, 200,  0,  5,  0,  50,  0, GREEN_BLACK},
-    {          "Wugua",  70, 1000, 125,  0,  5,  0, 200,  0, GREEN_BLACK},
-    {        "NutWall", 200,    0, 70,   0,  5,  0,   1,  0,  YELLOW_BLACK},
-    {    "HighNutWall", 400,    0, 200,  0,  5,  0,  50,  0, YELLOW_BLACK},
-    {         "Garlic",  70,    0, 125,  0,  5,  0,   1,  0, RED_BLACK},
-    {        "Pumpkin", 200,    0, 125,  0,  5,  0,   1,  0, RED_BLACK},
-    {         "Zombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {"BarricadeZombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {"NewspaperZombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {     "PoleZombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {    "ClownZombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {    "SlingZombie", 100,    5,   0,  0,  0,  1, 500, 50, MAGENTA_BLACK},
-    {         "Bullet",   1,    2,   0,  0,  0,  2,  10,  0, GREEN_BLACK},
-    {      "IceBullet",   1,    2,   0,  0,  0,  2,  10,  0, WHITE_BLACK},
+    {      "SunFlower",  70,    0,  50,  1, 50,  5,  0, 800,  0, YELLOW_BLACK},
+    {     "PeaShooter",  70,    0, 100,  1,  0,  5,  0,  50,  0, GREEN_BLACK},
+    {     "CherryBomb",  70, 1000, 150,  1,  0, 10,  0, 200,  0, RED_BLACK},
+    {  "DoubleShooter",  70,    0, 200,  1,  0,  5,  0,  25,  0, GREEN_BLACK},
+    {     "IceShooter",  70,    0, 200,  1,  0,  5,  0,  50,  0, GREEN_BLACK},
+    {          "Wugua",  70, 1000, 125,  1,  0,  5,  0, 200,  0, GREEN_BLACK},
+    {        "NutWall", 200,    0, 70,   1,  0,  5,  0,   1,  0, YELLOW_BLACK},
+    {    "HighNutWall", 400,    0, 200,  1,  0,  5,  0,  50,  0, YELLOW_BLACK},
+    {         "Garlic",  70,    0, 125,  1,  0,  5,  0,   1,  0, RED_BLACK},
+    {        "Pumpkin", 200,    0, 125,  1,  0,  5,  0,   1,  0, RED_BLACK},
+    {         "Zombie", 100,    5,   0,  1,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    {"BarricadeZombie", 100,    5,   0,  2,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    {"NewspaperZombie", 100,    5,   0,  1,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    {     "PoleZombie", 100,    5,   0,  1,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    {    "ClownZombie", 100,    5,   0,  1,  0,  0,  1, 500, 50, MAGENTA_BLACK},
+    {    "SlingZombie", 100,    5,   0,  1,  0,  0,  1, 800, 50, MAGENTA_BLACK},
+    {         "Bullet",   1,    2,   0,  1,  0,  0,  2,  10,  0, GREEN_BLACK},
+    {      "IceBullet",   1,    2,   0,  1,  0,  0,  2,  10,  0, WHITE_BLACK},
 };
 
 
@@ -81,6 +82,7 @@ protected:
     int dx, dy;
     int health;
     int attack_damage;
+    int defense;
     int act_time;
     int counter;
     int kill_score;
@@ -113,7 +115,7 @@ public:
         return make_pair(coord_x, coord_y);
     }
     void attacked(int attack_damage){
-        health -= attack_damage;
+        health -= attack_damage/defense;
     }
     void set_coord(int x, int y){
         coord_x = x;
@@ -150,7 +152,7 @@ public:
     bool is_frozen(){
         return frozen;
     }
-    bool make_frozen(){
+    void make_frozen(){
         if(!frozen)
             frozen = true;
     }

@@ -59,9 +59,41 @@ void Game::gen_sun(){
 }
 void Game::gen_zombie(){
     if(counter >= 300){
-        if(Rand(4000)<100 && courtyard.can_add_zomble()){
-            Zombie *z = new Zombie;
-            courtyard.new_zomble(z);
+        if(Rand(4000)<10 && courtyard.can_add_zomble()){
+            int ind = Rand(ZOMBIE_NUM);
+            ObjectType zombie_type = ObjectType(ind+PLANT_NUM);
+            switch (zombie_type){
+                case zombie:{
+                    Zombie *z = new Zombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+                case barricadezombie:{
+                    BarricadeZombie *z = new BarricadeZombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+                case newspaperzombie:{
+                    NewspaperZombie *z = new NewspaperZombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+                case polezombie:{
+                    PoleZombie *z = new PoleZombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+                case clownzombie:{
+                    ClownZombie *z = new ClownZombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+                case slingzombie:{
+                    SlingZombie *z = new SlingZombie;
+                    courtyard.new_zomble(z);
+                    break;
+                }
+            }
         }
         if(counter>=10000000)    //10000
             counter = 0;

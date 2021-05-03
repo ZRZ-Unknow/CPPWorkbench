@@ -53,8 +53,6 @@ void CourtYard::new_zomble(LivingObject *zom){
     vector<int> tmp;
     for(int i=0;i<COURTYARD_ROW;i++){
         if(yard[i][COURTYARD_COLUMN-1].can_add_zombie()){
-            yard[i][COURTYARD_COLUMN-1].set_zombie(zom);
-            return;
             tmp.push_back(i); 
         }
     }
@@ -201,14 +199,89 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
             if(yard[i][j].is_planted() && yard[i][j].has_zombie()){
                 for(int p=0;p<ZOMBIE_SPACE;p++){
                     if(yard[i][j].zombies[p]!=NULL){
-                        if(yard[i][j].zombies[p]->can_eat()){
-                            if(yard[i][j].is_planted(true))
-                                yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
-                            else
-                                yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                        if(yard[i][j].zombies[p]->get_type() == polezombie){
+                            PoleZombie *tmp = (PoleZombie*) yard[i][j].zombies[p];
+                            if(tmp->having_pole() && tmp->can_act() && !tmp->is_dead()){
+                                if(yard[i][j].plant->get_type() == highnutwall){
+                                    tmp->use_pole();
+                                }else if(j==0){
+                                    game_lose = true;
+                                }else if(yard[i][j-1].can_add_zombie()){
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                    yard[i][j-1].set_zombie(yard[i][j].zombies[p]);
+                                    yard[i][j].del_zombie(p);
+                                    tmp->use_pole();
+                                }else{
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                }
+                            }else{
+                                if(!tmp->having_pole() && tmp->can_eat()){
+                                    if(yard[i][j].is_planted(true))
+                                        yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
+                                    else
+                                        yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                                }
+                                yard[i][j].zombies[p]->increase_counter();
+                                yard[i][j].zombies[p]->update();
+                            }
+                        }else if(yard[i][j].zombies[p]->get_type() == clownzombie){
+                            if(Rand(10000)<10){
+                                for(int pos_i=i-1;pos_i<=i+1;pos_i++){
+                                    for(int pos_j=j-1;pos_j<=j+1;pos_j++){
+                                        if(legal_pos_in_yard(pos_i, pos_j) && yard[pos_i][pos_j].is_planted()){
+                                            yard[pos_i][pos_j].plant->make_dead();
+                                            if(yard[pos_i][pos_j].is_planted(true))
+                                                yard[pos_i][pos_j].plant_mount->make_dead();
+                                        }
+                                    }
+                                }
+                                yard[i][j].zombies[p]->make_dead();
+                            }else{
+                                if(yard[i][j].zombies[p]->can_eat()){
+                                    if(yard[i][j].is_planted(true))
+                                        yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
+                                    else
+                                        yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                                }
+                                yard[i][j].zombies[p]->increase_counter();
+                                yard[i][j].zombies[p]->update();
+                            }
+                        }else if(yard[i][j].zombies[p]->get_type() == slingzombie){
+                            SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[p];
+                            if(tmp->having_ball() && tmp->can_act() && !tmp->is_dead()){
+                                tmp->use_ball();
+                                yard[i][j].zombies[p]->increase_counter();
+                                yard[i][j].zombies[p]->update();
+                            }else{
+                                if(!tmp->having_ball() && tmp->can_act()){
+                                    yard[i][j].plant->make_dead();
+                                    if(yard[i][j].is_planted(true))
+                                        yard[i][j].plant_mount->make_dead();
+                                    if(j>0 && yard[i][j-1].can_add_zombie()){
+                                        //前进
+                                        yard[i][j].zombies[p]->increase_counter();
+                                        yard[i][j].zombies[p]->update();
+                                        yard[i][j-1].set_zombie(yard[i][j].zombies[p]);
+                                        yard[i][j].del_zombie(p);
+                                    }
+                                }
+                                if(yard[i][j].has_zombie(p)){
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                }
+                            }
+                        }else if(yard[i][j].has_zombie(p)){
+                            if(yard[i][j].zombies[p]->can_eat()){
+                                if(yard[i][j].is_planted(true))
+                                    yard[i][j].plant_mount->attacked(yard[i][j].zombies[p]->attack());
+                                else
+                                    yard[i][j].plant->attacked(yard[i][j].zombies[p]->attack());
+                            }
+                            yard[i][j].zombies[p]->increase_counter();
+                            yard[i][j].zombies[p]->update();
                         }
-                        yard[i][j].zombies[p]->increase_counter();
-                        yard[i][j].zombies[p]->update();
                     }
                 }
             }else if(yard[i][j].has_zombie()){
@@ -226,7 +299,57 @@ void CourtYard::update(vector<BulletStruct> &all_bullets, bool &game_lose, int &
                 }else{
                     for(int p=0;p<ZOMBIE_SPACE;p++){
                         if(yard[i][j].zombies[p]!=NULL){
-                            if(yard[i][j].zombies[p]->can_act() && !yard[i][j].zombies[p]->is_dead()){
+                            if(yard[i][j].zombies[p]->get_type() == clownzombie){
+                                if(Rand(10000)<10){
+                                    for(int pos_i=i-1;pos_i<=i+1;pos_i++){
+                                        for(int pos_j=j-1;pos_j<=j+1;pos_j++){
+                                            if(legal_pos_in_yard(pos_i, pos_j) && yard[pos_i][pos_j].is_planted()){
+                                                yard[pos_i][pos_j].plant->make_dead();
+                                                if(yard[pos_i][pos_j].is_planted(true))
+                                                    yard[pos_i][pos_j].plant_mount->make_dead();
+                                            }
+                                        }
+                                    }
+                                    yard[i][j].zombies[p]->make_dead();
+                                }else{
+                                    if(yard[i][j].zombies[p]->can_act() && !yard[i][j].zombies[p]->is_dead()){
+                                        if(yard[i][j-1].can_add_zombie()){
+                                            yard[i][j].zombies[p]->increase_counter();
+                                            yard[i][j].zombies[p]->update();
+                                            yard[i][j-1].set_zombie(yard[i][j].zombies[p]);
+                                            yard[i][j].del_zombie(p);
+                                        }else{
+                                            yard[i][j].zombies[p]->increase_counter();
+                                            yard[i][j].zombies[p]->update();
+                                        }
+                                    }
+                                    if(yard[i][j].has_zombie(p)){
+                                        yard[i][j].zombies[p]->increase_counter();
+                                        yard[i][j].zombies[p]->update();
+                                    }
+                                }
+                            }else if(yard[i][j].zombies[p]->get_type() == slingzombie){
+                                SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[p];
+                                if(tmp->having_ball() && tmp->can_act() && !tmp->is_dead()){
+                                    tmp->use_ball();
+                                    yard[i][j].zombies[p]->increase_counter();
+                                    yard[i][j].zombies[p]->update();
+                                }else{
+                                    if(!tmp->having_ball() && tmp->can_act()){
+                                        if(j>0 && yard[i][j-1].can_add_zombie()){
+                                            //前进
+                                            yard[i][j].zombies[p]->increase_counter();
+                                            yard[i][j].zombies[p]->update();
+                                            yard[i][j-1].set_zombie(yard[i][j].zombies[p]);
+                                            yard[i][j].del_zombie(p);
+                                        }
+                                    }
+                                    if(yard[i][j].has_zombie(p)){
+                                        yard[i][j].zombies[p]->increase_counter();
+                                        yard[i][j].zombies[p]->update();
+                                    }
+                                }
+                            }else if(yard[i][j].zombies[p]->can_act() && !yard[i][j].zombies[p]->is_dead()){
                                 if(yard[i][j-1].can_add_zombie()){
                                     //前进
                                     yard[i][j].zombies[p]->increase_counter();
@@ -301,11 +424,55 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
                             int color_pair_type = init_table[yard[i][j].get_zombie_type(ind)].color_pair;
                             int health = yard[i][j].zombies[ind]->get_health();
                             if(yard[i][j].zombies[ind]->is_frozen()){
-                                print(WHITE_BLACK, "%s%d", pname, health);
-                            }else{
-                                print(color_pair_type, "%s%d", pname, health);
+                                color_pair_type = WHITE_BLACK;
                             }
-                            for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++) print(CYAN_BLACK, "*");
+                            switch(yard[i][j].zombies[ind]->get_type()){
+                                case newspaperzombie:{
+                                    NewspaperZombie *tmp = (NewspaperZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_paper()){
+                                        print(color_pair_type, "|%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }else{
+                                        print(color_pair_type, "%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }
+                                    break;
+                                }
+                                case slingzombie:{
+                                    SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_ball()){
+                                        print(color_pair_type, "o%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }else{
+                                        print(color_pair_type, "=%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }
+                                    break;
+                                }
+                                case polezombie:{
+                                    PoleZombie *tmp = (PoleZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_pole()){
+                                        print(color_pair_type, "/%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }else{
+                                        print(color_pair_type, "%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                            print(CYAN_BLACK, "*");
+                                    }
+                                    break;
+                                }
+                                default:{
+                                    print(color_pair_type, "%s%d", pname, health);
+                                    for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                        print(CYAN_BLACK, "*");
+                                    break;
+                                }
+                            }
                             printw("#");
                         }else{
                             printw("#");
@@ -322,11 +489,55 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
                             int color_pair_type = init_table[yard[i][j].get_zombie_type(ind)].color_pair;
                             int health = yard[i][j].zombies[ind]->get_health();
                             if(yard[i][j].zombies[ind]->is_frozen()){
-                                print(WHITE_BLACK, "%s%d", pname, health);
-                            }else{
-                                print(color_pair_type, "%s%d", pname, health);
+                                color_pair_type = WHITE_BLACK; 
                             }
-                            for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++) printw(" ");
+                            switch(yard[i][j].zombies[ind]->get_type()){
+                                case newspaperzombie:{
+                                    NewspaperZombie *tmp = (NewspaperZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_paper()){
+                                        print(color_pair_type, "|%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            printw(" ");
+                                    }else{
+                                        print(color_pair_type, "%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                            printw(" ");
+                                    }
+                                    break;
+                                }
+                                case slingzombie:{
+                                    SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_ball()){
+                                        print(color_pair_type, "o%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, " ");
+                                    }else{
+                                        print(color_pair_type, "=%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, " ");
+                                    }
+                                    break;
+                                }
+                                case polezombie:{
+                                    PoleZombie *tmp = (PoleZombie*) yard[i][j].zombies[ind];
+                                    if(tmp->having_pole()){
+                                        print(color_pair_type, "/%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                            print(CYAN_BLACK, " ");
+                                    }else{
+                                        print(color_pair_type, "%s%d", pname, health);
+                                        for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                            print(CYAN_BLACK, " ");
+                                    }
+                                    break;
+                                }
+                                default:{
+                                    print(color_pair_type, "%s%d", pname, health);
+                                    for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                        print(CYAN_BLACK, " ");
+                                    break;
+                                }
+                            }
                             printw("#"); 
                         }else{
                             printw("#");
@@ -342,14 +553,57 @@ void CourtYard::curse_render(WINDOW *win, int cursor_x, int cursor_y, bool show_
                     int color_pair_type = init_table[yard[i][j].get_zombie_type(ind)].color_pair;
                     int health = yard[i][j].zombies[ind]->get_health();
                     if(yard[i][j].zombies[ind]->is_frozen()){
-                        print(WHITE_BLACK, "%s%d", pname, health);
-                    }else{
-                        print(color_pair_type, "%s%d", pname, health);
+                        color_pair_type = WHITE_BLACK;
                     }
-                    for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++) printw(" ");
-                    printw("#"); 
-                }
-                else{
+                    switch(yard[i][j].zombies[ind]->get_type()){
+                        case newspaperzombie:{
+                            NewspaperZombie *tmp = (NewspaperZombie*) yard[i][j].zombies[ind];
+                            if(tmp->having_paper()){
+                                print(color_pair_type, "|%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                    printw(" ");
+                            }else{
+                                print(color_pair_type, "%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                    printw(" ");
+                            }
+                            break;
+                        }
+                        case slingzombie:{
+                            SlingZombie *tmp = (SlingZombie*) yard[i][j].zombies[ind];
+                            if(tmp->having_ball()){
+                                print(color_pair_type, "o%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                    print(CYAN_BLACK, " ");
+                            }else{
+                                print(color_pair_type, "=%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                    print(CYAN_BLACK, " ");
+                            }
+                            break;
+                        }
+                        case polezombie:{
+                            PoleZombie *tmp = (PoleZombie*) yard[i][j].zombies[ind];
+                            if(tmp->having_pole()){
+                                print(color_pair_type, "/%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-2;q++)
+                                    print(CYAN_BLACK, " ");
+                            }else{
+                                print(color_pair_type, "%s%d", pname, health);
+                                for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                    print(CYAN_BLACK, " ");
+                            }
+                            break;
+                        }
+                        default:{
+                            print(color_pair_type, "%s%d", pname, health);
+                            for(int q=0;q<GRID_YLEN-2-strlen(pname)-numlen(health)-1;q++)
+                                print(CYAN_BLACK, " ");
+                            break;
+                        }
+                    }
+                    printw("#");
+                }else{
                     printw("#");
                     for(int q=0;q<GRID_YLEN-2;q++) printw(" ");
                     printw("#");
